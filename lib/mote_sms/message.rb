@@ -1,4 +1,5 @@
-require 'phony'
+require 'mote_sms/number'
+require 'mote_sms/number_list'
 
 module MoteSMS
 
@@ -7,12 +8,6 @@ module MoteSMS
   # similar stuff.
   #
   class Message
-
-    # Number or alphanumeric name of sender.
-    attr_accessor :from
-
-    # Array of recipient numbers, international format.
-    attr_accessor :to
 
     # Public: Create a new SMS message instance.
     #
@@ -29,7 +24,7 @@ module MoteSMS
     #
     # Returns a new instance.
     def initialize(&block)
-      @to = []
+      @to = MoteSMS::NumberList.new
       instance_eval(&block) if block_given?
     end
 
@@ -43,8 +38,14 @@ module MoteSMS
     #
     # Returns value of sender.
     def from(val = nil)
-      @from = val if val
+      self.from = val if val
       @from
+    end
+
+    # Public: Asign an instance of Number instead of the direct
+    # string, so only vanity numbers are allowed.
+    def from=(val)
+      @from = val ? Number.new(val, :vanity => true) : nil
     end
 
     # Public: Set to multiple arguments or array, or whatever.
@@ -59,7 +60,7 @@ module MoteSMS
     #
     # Returns nothing.
     def to=(*args)
-      @to = args.flatten
+      @to = MoteSMS::NumberList.new.push(*args)
     end
 
     def to

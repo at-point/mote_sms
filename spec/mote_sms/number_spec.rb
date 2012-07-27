@@ -7,6 +7,7 @@ describe MoteSMS::Number do
 
     its(:to_s) { should == '+41 44 364 35 33' }
     its(:number) { should == '41443643533' }
+    its(:to_number) { should == '41443643533' }
   end
 
   context 'E164 conforming number' do
@@ -14,6 +15,7 @@ describe MoteSMS::Number do
 
     its(:to_s) { should == '+41 44 364 35 33' }
     its(:number) { should == '41443643533' }
+    its(:to_number) { should == '41443643533' }
   end
 
   context 'E164 conforming number with name' do
@@ -21,6 +23,7 @@ describe MoteSMS::Number do
 
     its(:to_s) { should == '+41 44 364 35 33' }
     its(:number) { should == '41443643533' }
+    its(:to_number) { should == '41443643533' }
   end
 
   context 'handles local numbers' do
@@ -28,6 +31,7 @@ describe MoteSMS::Number do
 
     its(:to_s) { should == '+41 79 700 50 90' }
     its(:number) { should == '41797005090'}
+    its(:to_number) { should == '41797005090' }
   end
 
   context 'non conforming number' do
@@ -42,5 +46,14 @@ describe MoteSMS::Number do
     it 'raises error when creating instance with wrong ndc' do
       Proc.new { described_class.new('+41 44 364 35 33', :cc => '41', :ndc => '43') }.should raise_error(ArgumentError, /national destination/i)
     end
+  end
+
+  context 'vanity numbers' do
+    subject { described_class.new('VANITY', :vanity => true) }
+
+    its(:to_s) { should == 'VANITY' }
+    its(:number) { should == 'VANITY' }
+    its(:to_number) { should == 'VANITY' }
+    its(:vanity?) { should be_true }
   end
 end
