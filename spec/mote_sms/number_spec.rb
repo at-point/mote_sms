@@ -37,4 +37,10 @@ describe MoteSMS::Number do
       Proc.new { described_class.new('123456789012345678901') }.should raise_error(ArgumentError, /unable to parse/i)
     end
   end
+
+  context 'wrong cc/ndc' do
+    it 'raises error when creating instance with wrong ndc' do
+      Proc.new { described_class.new('+41 44 364 35 33', :cc => '41', :ndc => '43') }.should raise_error(ArgumentError, /national destination/i)
+    end
+  end
 end

@@ -31,6 +31,7 @@ module MoteSMS
       raise ArgumentError, "Unable to parse #{@raw_number} as number" unless Phony.plausible?(@raw_number)
       normalized = Phony.normalize(@raw_number)
       normalized = "#{@options[:cc]}#{normalized}" unless @options[:cc] && normalized.start_with?(@options[:cc])
+      raise ArgumentError, "Wrong national destination code #{@raw_number}" unless Phony.plausible?(normalized, @options)
 
       @number = Phony.normalize normalized
     end
