@@ -7,7 +7,7 @@ mail API, so users can switch e.g. ActionMailer with this SMS provider.
 
 Add this line to your application's Gemfile:
 
-    gem 'mobiletechnics_sms'
+    gem 'mote_sms'
 
 And then execute:
 
@@ -15,11 +15,35 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install mobiletechnics_sms
+    $ gem install mote_sms
 
 ## Usage
 
-Obtain a client
+```ruby
+# Quick and dirty
+MoteSMS.transport = MoteSMS::MobileTechnicsTransport.new 'https://endpoint.com', 'username', 'password'
+MoteSMS.deliver 'Quick hello world', to: '+41 79 111 22 33', from: 'ARUBYGEM'
+```
+
+```ruby
+# Using global transport
+MoteSMS.transport = MoteSMS::MobileTechnicsTransport.new 'https://endpoint.com', 'username', 'password'
+sms = MoteSMS.Message.new do
+ to '+41 79 111 22 33'
+ from 'ARUBYGEM'
+ body 'Hello world, you know.'
+end
+sms.deliver
+```
+
+```ruby
+# Using client instance
+transport = MoteSMS::MobileTechnicsTransport.new 'https://endpoint.com', 'username', 'password'
+sms = MoteSMS.Message.new(transport: transport) do
+  # create message
+end
+sms.deliver
+```
 
 ## Contributing
 
