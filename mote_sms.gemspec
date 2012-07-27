@@ -18,6 +18,7 @@ Gem::Specification.new do |gem|
   gem.version       = MoteSMS::VERSION
 
   gem.add_dependency 'phony', ['~> 1.7.0']
+  gem.add_dependency 'httparty', ['>= 0.8']
 
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rspec', ['~> 2.10']
