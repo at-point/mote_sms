@@ -43,10 +43,10 @@ sms.deliver
 ```ruby
 # Using client instance
 transport = MoteSMS::MobileTechnicsTransport.new 'https://endpoint.com', 'username', 'password'
-sms = MoteSMS.Message.new(transport: transport) do
+sms = MoteSMS.Message.new do
   # create message
 end
-sms.deliver
+sms.deliver(:transport => transport)
 ```
 
 ## Contributing
