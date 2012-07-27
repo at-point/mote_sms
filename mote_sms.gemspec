@@ -1,8 +1,8 @@
 # -*- encoding: utf-8 -*-
-require File.expand_path('../lib/mobiletechnics_sms/version', __FILE__)
+require File.expand_path('../lib/mote_sms/version', __FILE__)
 
 Gem::Specification.new do |gem|
-  gem.name          = "mobiletechnics_sms"
+  gem.name          = "mote_sms"
   gem.authors       = ["Lukas Westermann"]
   gem.email         = ["lukas.westermann@at-point.ch"]
   gem.summary       = %q{Deliver SMS using MobileTechnics HTTP API.}
@@ -15,7 +15,7 @@ Gem::Specification.new do |gem|
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ["lib"]
-  gem.version       = MobiletechnicsSMS::VERSION
+  gem.version       = MoteSMS::VERSION
 
   gem.add_development_dependency "rake"
   gem.add_development_dependency "rspec", ["~> 2.10"]

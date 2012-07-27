@@ -1,4 +1,6 @@
-require "mobiletechnics_sms/version"
+require "mote_sms/version"
 
-module MobiletechnicsSMS
+module MoteSMS
+  autoload :Transport, 'mote_sms/transport'
+  autoload :Message, 'mote_sms/message'
 end
