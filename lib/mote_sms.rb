@@ -1,3 +1,5 @@
+require 'mote_sms/transports'
+
 module MoteSMS
   autoload :Number,     'mote_sms/number'
   autoload :NumberList, 'mote_sms/number_list'
