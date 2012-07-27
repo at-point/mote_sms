@@ -28,6 +28,17 @@ module MoteSMS
       instance_eval(&block) if block_given?
     end
 
+    # Public: Returns current SMS message body, which should
+    # be something stringish.
+    #
+    # Returns value of body.
+    attr_writer :body
+    def body(val = nil)
+      @body = val if val
+      @body
+    end
+
+
     # Public: Returns string of sender, the sender should
     # either be 11 alphanumeric characters or 20 numbers.
     #
@@ -63,7 +74,11 @@ module MoteSMS
       @to = MoteSMS::NumberList.new.push(*args)
     end
 
-    def to
+    # Public: Returns NumberList for this message.
+    #
+    # Returns NumberList instance.
+    def to(*numbers)
+      @to.push(*numbers) unless numbers.empty?
       @to
     end
   end

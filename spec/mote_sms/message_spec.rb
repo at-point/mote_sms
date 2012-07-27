@@ -9,7 +9,7 @@ describe MoteSMS::Message do
       body 'This is the SMS content'
     end
     msg.from.number.should == 'SENDER'
-    msg.to.should == %w{41791231212}
+    msg.to.normalized_numbers.should == %w{41791231212}
     msg.body.should == 'This is the SMS content'
   end
 
