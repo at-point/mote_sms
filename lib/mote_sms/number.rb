@@ -45,7 +45,8 @@ module MoteSMS
 
         @number = Phony.normalize normalized
       else
-        @number = @raw_number
+        @number = @raw_number.gsub(/[^A-Z0-9]/i, '').upcase.strip
+        raise ArgumentError, "Invalid vanity number #{@raw_number}" if @number.length == 0 || @number.length > 11
       end
     end
   end

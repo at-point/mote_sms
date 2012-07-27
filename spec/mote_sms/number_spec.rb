@@ -49,11 +49,21 @@ describe MoteSMS::Number do
   end
 
   context 'vanity numbers' do
-    subject { described_class.new('VANITY', :vanity => true) }
+    subject { described_class.new('0800-vanity', :vanity => true) }
 
-    its(:to_s) { should == 'VANITY' }
-    its(:number) { should == 'VANITY' }
-    its(:to_number) { should == 'VANITY' }
+    its(:to_s) { should == '0800VANITY' }
+    its(:number) { should == '0800VANITY' }
+    its(:to_number) { should == '0800VANITY' }
     its(:vanity?) { should be_true }
+
+    it 'raises error if more than 11 alpha numeric chars' do
+      Proc.new { described_class.new('1234567890AB', :vanity => true) }.should raise_error(ArgumentError, /invalid vanity/i)
+    end
+
+    it 'can also be normal phone number' do
+      num = described_class.new('0800 123 12 12', :vanity => true)
+      num.to_s.should == '08001231212'
+      num.to_number.should == '08001231212'
+    end
   end
 end
