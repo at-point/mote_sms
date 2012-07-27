@@ -22,7 +22,11 @@ Or install it yourself as:
 ```ruby
 # Quick and dirty
 MoteSMS.transport = MoteSMS::MobileTechnicsTransport.new 'https://endpoint.com', 'username', 'password'
-MoteSMS.deliver 'Quick hello world', to: '+41 79 111 22 33', from: 'ARUBYGEM'
+MoteSMS.deliver do
+  body 'Quick hello world'
+  to '+41 79 111 22 33'
+  from 'ARUBYGEM'
+end
 ```
 
 ```ruby

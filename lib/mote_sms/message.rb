@@ -9,6 +9,10 @@ module MoteSMS
   #
   class Message
 
+    # The transport instance to use, if not defined
+    # falls back to use global MoteSMS.transport instance.
+    attr_accessor :transport
+
     # Public: Create a new SMS message instance.
     #
     # Examples:
@@ -23,7 +27,8 @@ module MoteSMS
     #    sms.body # => 'Hi there.'
     #
     # Returns a new instance.
-    def initialize(&block)
+    def initialize(transport = nil, &block)
+      @transport = transport
       @to = MoteSMS::NumberList.new
       instance_eval(&block) if block_given?
     end
@@ -37,7 +42,6 @@ module MoteSMS
       @body = val if val
       @body
     end
-
 
     # Public: Returns string of sender, the sender should
     # either be 11 alphanumeric characters or 20 numbers.
@@ -80,6 +84,19 @@ module MoteSMS
     def to(*numbers)
       @to.push(*numbers) unless numbers.empty?
       @to
+    end
+
+    # Public: Deliver message using defined transport, to select the correct
+    # transport method uses any of these values:
+    #
+    # 1. if options[:transport] is defined
+    # 2. falls back to self.transport
+    # 3. falls back to use MoteSMS.transport (global transport)
+    #
+    # Returns result of transport#deliver.
+    def deliver(options = {})
+      transport = options.delete(:transport) || self.transport || MoteSMS.transport
+      transport.deliver(self, options)
     end
   end
 end

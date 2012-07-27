@@ -30,4 +30,31 @@ describe MoteSMS::Message do
       subject.to.normalized_numbers.should == %w{41791231212}
     end
   end
+
+  context "#deliver" do
+    let(:transport) { double("Some Transport") }
+    subject { described_class.new(transport) }
+
+    it "sends messages to transport" do
+      transport.should_receive(:deliver).with(subject, {})
+      subject.deliver
+    end
+
+    it "can pass additional attributes to transport" do
+      transport.should_receive(:deliver).with(subject, :serviceid => "myapplication")
+      subject.deliver :serviceid => "myapplication"
+    end
+
+    it "can override per message transport using :transport option" do
+      transport.should_not_receive(:deliver)
+      subject.deliver :transport => double(:deliver => true)
+    end
+
+    it "uses global MoteSMS.transport if no per message transport defined" do
+      message = described_class.new
+      transport.should_receive(:deliver).with(message, {})
+      MoteSMS.should_receive(:transport) { transport }
+      message.deliver
+    end
+  end
 end
