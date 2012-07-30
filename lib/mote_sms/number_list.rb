@@ -28,6 +28,18 @@ module MoteSMS
       @numbers = ::Array.new
     end
 
+    # Public: Count of numbers in the list.
+    def length
+      numbers.length
+    end
+    alias :size :length
+
+    # Public: Conform to arrayish behavior.
+    def empty?
+      numbers.empty?
+    end
+    alias :blank? :empty?
+
     # Public: Add number to internal list, use duck typing to detect if
     # it appears to be a number instance or not. So everything which does
     # not respond to `to_number` is converted into a Number instance.
