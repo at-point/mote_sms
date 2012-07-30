@@ -6,8 +6,10 @@ module MoteSMS
   # MoteSMS::MobileTechnicsTransport provides the implementation to
   # send messages using nth.ch bulk SMS HTTP/S API. Each customer has
   # custom endpoint and username/password.
-  #
   class MobileTechnicsTransport
+
+    # Custom exception subclass.
+    ServiceError = Class.new(::Exception)
 
     attr_accessor :endpoint, :username, :password
 
@@ -18,7 +20,12 @@ module MoteSMS
     end
 
     def deliver(message, options = {})
-      HTTParty.post self.endpoint, :body => post_body(message, options)
+      resp = HTTParty.post self.endpoint, :body => post_body(message, options)
+      raise ServiceError, "Endpoint did respond with #{resp.code}" unless resp.code == 200
+      raise ServiceError, "Endpoint was unable to deliver message to all recipients" unless resp.body.split("\n").all? { |l| l =~ /Result_code: 00/ }
+
+      # extract Nth-SmsIds
+      resp.headers['X-Nth-SmsId'].split(',')
     end
 
     protected
