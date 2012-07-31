@@ -21,7 +21,7 @@ Or install it yourself as:
 
 ```ruby
 # Quick and dirty
-MoteSMS.transport = MoteSMS::MobileTechnicsTransport.new 'https://endpoint.com', 'username', 'password'
+MoteSMS.transport = MoteSMS::MobileTechnicsTransport.new 'https://endpoint.com:1234', 'username', 'password'
 MoteSMS.deliver do
   body 'Quick hello world'
   to '+41 79 111 22 33'
@@ -31,7 +31,7 @@ end
 
 ```ruby
 # Using global transport
-MoteSMS.transport = MoteSMS::MobileTechnicsTransport.new 'https://endpoint.com', 'username', 'password'
+MoteSMS.transport = MoteSMS::MobileTechnicsTransport.new 'https://endpoint.com:1234', 'username', 'password'
 sms = MoteSMS.Message.new do
  to '+41 79 111 22 33'
  from 'ARUBYGEM'
@@ -42,7 +42,7 @@ sms.deliver
 
 ```ruby
 # Using client instance
-transport = MoteSMS::MobileTechnicsTransport.new 'https://endpoint.com', 'username', 'password'
+transport = MoteSMS::MobileTechnicsTransport.new 'https://endpoint.com:1234', 'username', 'password'
 sms = MoteSMS.Message.new do
   # create message
 end
