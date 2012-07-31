@@ -1,9 +1,19 @@
+# encoding: utf-8
 require 'spec_helper'
 require 'cgi'
 require 'mote_sms/message'
 require 'mote_sms/transports/mobile_technics_transport'
 
 describe MoteSMS::MobileTechnicsTransport do
+  before do
+    @logger = described_class.logger
+    described_class.logger = stub(:debug => true, :info => true, :error => true)
+  end
+
+  after do
+    described_class.logger = @logger
+  end
+
   subject { described_class.new(endpoint, "example", "123456") }
 
   let(:endpoint) { "http://test.nth.ch" }
@@ -11,7 +21,7 @@ describe MoteSMS::MobileTechnicsTransport do
     MoteSMS::Message.new do
       to '0041 079 123 12 12'
       from 'SENDER'
-      body 'Hello World'
+      body 'Hello World, with äöü.'
     end
   }
 
@@ -25,7 +35,7 @@ describe MoteSMS::MobileTechnicsTransport do
         params = CGI.parse(req.body)
         params['username'].should == %w{example}
         params['password'].should == %w{123456}
-        params['text'].should == ['Hello World']
+        params['text'].should == ['Hello World, with äöü.']
         params['call-number'].should == ['0041791231212']
       end.to_return(success)
       subject.deliver message
@@ -52,6 +62,15 @@ describe MoteSMS::MobileTechnicsTransport do
     it 'returns message id' do
       stub_request(:post, endpoint).to_return(success)
       subject.deliver(message).should == %w{43797917}
+    end
+
+    it 'logs curl compatible output' do
+      io = StringIO.new
+      described_class.logger = Logger.new(io)
+      stub_request(:post, endpoint).to_return(success)
+      subject.deliver message
+      io.rewind
+      io.read.should =~ %r{curl -XPOST 'http://test.nth.ch' -d 'allow_adaption=1&}
     end
   end
 

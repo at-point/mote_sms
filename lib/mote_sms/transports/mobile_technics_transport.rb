@@ -1,5 +1,7 @@
-require 'httparty'
+require 'uri'
+require 'net/http'
 require 'phony'
+require 'logger'
 
 module MoteSMS
 
@@ -22,16 +24,42 @@ module MoteSMS
     ServiceError = Class.new(::Exception)
 
     # Accessible attributes
-    attr_accessor :endpoint, :username, :password
+    attr_accessor :endpoint, :username, :password, :logger
 
     # Options are readable as hash
     attr_reader :options
 
-    # Public: Global default settings for sending messages.
+    # Public: Global default parameters for sending messages, Procs/lambdas
+    # are evaluated on #deliver. Ensure to use only symbols as keys. Contains
+    # `:allow_adaption => true` as default.
+    #
+    # Examples:
+    #
+    #    MoteSMS::MobileTechnicsTransports.defaults[:messageid] = ->(msg) { "#{msg.from}-#{SecureRandom.hex}" }
+    #
+    # Returns Hash with options.
     def self.defaults
       @@options ||= {
-        :allow_adaption => true
+        allow_adaption: true
       }
+    end
+
+    # Public: Logger used to log HTTP requests to mobile
+    # technics API endpoint.
+    #
+    # Returns Logger instance.
+    def self.logger
+      @@logger ||= ::Logger.new($stdout)
+    end
+
+    # Public: Change the logger used to log all HTTP requests to
+    # the endpoint.
+    #
+    # logger - The Logger instance, should at least respond to #debug, #error.
+    #
+    # Returns nothing.
+    def self.logger=(logger)
+      @@logger = logger
     end
 
     # Public: Create a new instance using specified endpoint, username
@@ -58,15 +86,57 @@ module MoteSMS
     # Returns Array with sender ids.
     def deliver(message, options = {})
       raise ArgumentError, "Too many recipients, max. is #{MAX_RECIPIENT} (current: #{message.to.length})" if message.to.length > MAX_RECIPIENT
-      resp = HTTParty.post self.endpoint, :body => post_params(message, options)
-      raise ServiceError, "Endpoint did respond with #{resp.code}" unless resp.code == 200
+
+      # Prepare request
+      uri = URI.parse endpoint
+      http = http_client uri
+      request = http_request uri, post_params(message, options)
+
+      # Log
+      self.class.logger.debug "curl -X#{request.method} #{http.use_ssl? ? '-k ' : ''}'#{endpoint}' -d '#{request.body}'"
+
+      # Perform request
+      resp = http.request request
+
+      # Handle errors
+      raise ServiceError, "Endpoint did respond with #{resp.code}" unless resp.code.to_i == 200
       raise ServiceError, "Endpoint was unable to deliver message to all recipients" unless resp.body.split("\n").all? { |l| l =~ /Result_code: 00/ }
 
       # extract Nth-SmsIds
-      resp.headers['X-Nth-SmsId'].split(',')
+      resp['X-Nth-SmsId'].split(',')
     end
 
     protected
+
+    # Internal: Prepare request including body, headers etc.
+    #
+    # uri - The URI from the endpoint.
+    # params - The Array with the attributes.
+    #
+    # Returns Net::HTTP::Post instance.
+    def http_request(uri, params)
+      Net::HTTP::Post.new(uri.request_uri).tap do |request|
+        request.body = URI.encode_www_form params
+        request.content_type = 'application/x-www-form-urlencoded; charset=utf-8'
+      end
+    end
+
+    # Internal: Build new Net::HTTP instance, enables SSL if requested.
+    # FIXME: Add ability to change verify_mode, so e.g. certificates can be
+    # verified!
+    #
+    # uri - The URI from the endpoint.
+    #
+    # Returns Net::HTTP client instance.
+    def http_client(uri)
+      Net::HTTP.new uri.host, uri.port do |http|
+        # SSL support
+        if uri.instance_of?(URI::HTTPS)
+          http.use_ssl = true
+          http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        end
+      end
+    end
 
     # Internal: Merge defaults from class and instance with options
     # supplied to #deliver.
@@ -94,7 +164,7 @@ module MoteSMS
     # message - The MoteSMS::Message to create the POST body for.
     # options - The Hash with additional, per delivery options.
     #
-    # Returns Hash with POST body parameters.
+    # Returns Array with params.
     def post_params(message, options)
       params = prepare_options options
       params.merge! :username => self.username,
@@ -103,15 +173,13 @@ module MoteSMS
                     :text => message.body,
                     :'call-number' => prepare_numbers(message.to)
 
-      # Post process params
-      params = params.map do |param, value|
+      # Post process params (Procs & allow_adaption)
+      params.map do |param, value|
         value = value.call(message) if value.respond_to?(:call)
         value = value ? 1 : 0 if param == :allow_adaption
-        [param, value]
-      end
 
-      # Convert back into hash
-      Hash[*params.flatten]
+        [param.to_s, value.to_s]
+      end
     end
   end
 end

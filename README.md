@@ -1,7 +1,8 @@
 # MobileTechnics SMS API Client
 
 Unofficial ruby adapter for MobileTechnics HTTP Bulk SMS API. Tries to mimick
-mail API, so users can switch e.g. ActionMailer with this SMS provider.
+mail API, so users can switch e.g. ActionMailer with this SMS provider. Requires
+Ruby 1.9.
 
 ## Installation
 
@@ -46,7 +47,7 @@ transport = MoteSMS::MobileTechnicsTransport.new 'https://endpoint.com:1234', 'u
 sms = MoteSMS.Message.new do
   # create message
 end
-sms.deliver(:transport => transport)
+sms.deliver(transport: transport)
 ```
 
 ## Contributing
