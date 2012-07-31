@@ -19,7 +19,7 @@ describe MoteSMS::Number do
   end
 
   context 'E164 conforming number with name' do
-    subject { described_class.new('Frank: +41 44 3643533', :cc => '41') }
+    subject { described_class.new('Frank: +41 44 3643533', cc: '41') }
 
     its(:to_s) { should == '+41 44 364 35 33' }
     its(:number) { should == '41443643533' }
@@ -27,7 +27,7 @@ describe MoteSMS::Number do
   end
 
   context 'handles local numbers' do
-    subject { described_class.new('079 700 50 90', :cc => '41') }
+    subject { described_class.new('079 700 50 90', cc: '41') }
 
     its(:to_s) { should == '+41 79 700 50 90' }
     its(:number) { should == '41797005090'}
@@ -44,12 +44,12 @@ describe MoteSMS::Number do
 
   context 'wrong cc/ndc' do
     it 'raises error when creating instance with wrong ndc' do
-      Proc.new { described_class.new('+41 44 364 35 33', :cc => '41', :ndc => '43') }.should raise_error(ArgumentError, /national destination/i)
+      Proc.new { described_class.new('+41 44 364 35 33', cc: '41', ndc: '43') }.should raise_error(ArgumentError, /national destination/i)
     end
   end
 
   context 'vanity numbers' do
-    subject { described_class.new('0800-vanity', :vanity => true) }
+    subject { described_class.new('0800-vanity', vanity: true) }
 
     its(:to_s) { should == '0800VANITY' }
     its(:number) { should == '0800VANITY' }
@@ -57,11 +57,11 @@ describe MoteSMS::Number do
     its(:vanity?) { should be_true }
 
     it 'raises error if more than 11 alpha numeric chars' do
-      Proc.new { described_class.new('1234567890AB', :vanity => true) }.should raise_error(ArgumentError, /invalid vanity/i)
+      Proc.new { described_class.new('1234567890AB', vanity: true) }.should raise_error(ArgumentError, /invalid vanity/i)
     end
 
     it 'can also be normal phone number' do
-      num = described_class.new('0800 123 12 12', :vanity => true)
+      num = described_class.new('0800 123 12 12', vanity: true)
       num.to_s.should == '08001231212'
       num.to_number.should == '08001231212'
     end

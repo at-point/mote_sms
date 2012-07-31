@@ -10,7 +10,7 @@ module MoteSMS
   # Examples:
   #
   #    list << '+41 79 123 12 12'
-  #    list.push '044 123 12 12', :cc => '41'
+  #    list.push '044 123 12 12', cc: '41'
   #    list.push Number.new('0800 123 12 12')
   #    list.normalized_numbers
   #    # => ['41791231212', '41441231212', '08001231212']

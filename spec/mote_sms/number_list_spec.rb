@@ -27,7 +27,7 @@ describe MoteSMS::NumberList do
   end
 
   it 'can push multiple numbers with adding country codes' do
-    subject.push '079 111 22 33', '0041 44 111 22 33', :cc => '41', :ndc => /(44|79)/
+    subject.push '079 111 22 33', '0041 44 111 22 33', cc: '41', ndc: /(44|79)/
     subject.normalized_numbers.should == %w{41791112233 41441112233}
   end
 end

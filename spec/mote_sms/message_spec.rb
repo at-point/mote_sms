@@ -41,13 +41,13 @@ describe MoteSMS::Message do
     end
 
     it "can pass additional attributes to transport" do
-      transport.should_receive(:deliver).with(subject, :serviceid => "myapplication")
-      subject.deliver :serviceid => "myapplication"
+      transport.should_receive(:deliver).with(subject, serviceid: "myapplication")
+      subject.deliver serviceid: "myapplication"
     end
 
     it "can override per message transport using :transport option" do
       transport.should_not_receive(:deliver)
-      subject.deliver :transport => double(:deliver => true)
+      subject.deliver transport: double(deliver: true)
     end
 
     it "uses global MoteSMS.transport if no per message transport defined" do

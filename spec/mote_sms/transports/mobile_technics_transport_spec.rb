@@ -7,7 +7,7 @@ require 'mote_sms/transports/mobile_technics_transport'
 describe MoteSMS::MobileTechnicsTransport do
   before do
     @logger = described_class.logger
-    described_class.logger = stub(:debug => true, :info => true, :error => true)
+    described_class.logger = stub(debug: true, info: true, error: true)
   end
 
   after do
@@ -26,7 +26,7 @@ describe MoteSMS::MobileTechnicsTransport do
   }
 
   let(:success) {
-    { :body => "Result_code: 00, Message OK", :status => 200, :headers => { 'X-Nth-SmsId' => '43797917' } }
+    { body: "Result_code: 00, Message OK", status: 200, headers: { 'X-Nth-SmsId' => '43797917' } }
   }
 
   context "#deliver" do
@@ -45,17 +45,17 @@ describe MoteSMS::MobileTechnicsTransport do
       message.to << '+41 79 333 44 55'
       message.to << '+41 78 111 22 33'
 
-      stub_request(:post, endpoint).with(:body => hash_including('call-number' => '0041791231212;0041793334455;0041781112233')).to_return(success)
+      stub_request(:post, endpoint).with(body: hash_including('call-number' => '0041791231212;0041793334455;0041781112233')).to_return(success)
       subject.deliver message
     end
 
     it 'raises exception if required parameter is missing' do
-      stub_request(:post, endpoint).to_return(:body => 'Result_code: 02, call-number')
+      stub_request(:post, endpoint).to_return(body: 'Result_code: 02, call-number')
       Proc.new { subject.deliver message }.should raise_error(MoteSMS::MobileTechnicsTransport::ServiceError)
     end
 
     it 'raises exception if status code is not 200' do
-      stub_request(:post, endpoint).to_return(:status => 500)
+      stub_request(:post, endpoint).to_return(status: 500)
       Proc.new { subject.deliver message }.should raise_error(MoteSMS::MobileTechnicsTransport::ServiceError)
     end
 
@@ -76,7 +76,7 @@ describe MoteSMS::MobileTechnicsTransport do
 
   context "#options" do
     it 'can be passed in as last item in the constructor' do
-      transport = described_class.new endpoint, 'user', 'pass', :allow_adaption => false, :validity => 30
+      transport = described_class.new endpoint, 'user', 'pass', allow_adaption: false, validity: 30
       transport.options[:allow_adaption].should be_false
       transport.options[:validity].should == 30
       transport.options[:something].should be_nil
@@ -91,33 +91,33 @@ describe MoteSMS::MobileTechnicsTransport do
       described_class.defaults[:something] = 'global'
       subject.options[:something] = 'local'
 
-      stub_request(:post, endpoint).with(:body => hash_including('something' => 'local')).to_return(success)
+      stub_request(:post, endpoint).with(body: hash_including('something' => 'local')).to_return(success)
       subject.deliver message
     end
 
     it 'is overriden by options passed to #deliver' do
       subject.options[:something] = 'local'
 
-      stub_request(:post, endpoint).with(:body => hash_including('something' => 'deliver')).to_return(success)
-      subject.deliver message, :something => 'deliver'
+      stub_request(:post, endpoint).with(body: hash_including('something' => 'deliver')).to_return(success)
+      subject.deliver message, something: 'deliver'
     end
 
     it 'evaluates Procs & lambdas' do
       subject.options[:messageid] = Proc.new { "test" }
 
-      stub_request(:post, endpoint).with(:body => hash_including('messageid' => 'test')).to_return(success)
+      stub_request(:post, endpoint).with(body: hash_including('messageid' => 'test')).to_return(success)
       subject.deliver message
     end
 
     it 'converts allow_adaption to 1 when true' do
       subject.options[:allow_adaption] = true
-      stub_request(:post, endpoint).with(:body => hash_including('allow_adaption' => '1')).to_return(success)
+      stub_request(:post, endpoint).with(body: hash_including('allow_adaption' => '1')).to_return(success)
       subject.deliver message
     end
 
     it 'converts allow_adaption to 0 when false' do
       subject.options[:allow_adaption] = nil
-      stub_request(:post, endpoint).with(:body => hash_including('allow_adaption' => '0')).to_return(success)
+      stub_request(:post, endpoint).with(body: hash_including('allow_adaption' => '0')).to_return(success)
       subject.deliver message
     end
   end

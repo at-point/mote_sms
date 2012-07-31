@@ -31,7 +31,7 @@ module MoteSMS
 
     # Public: Global default parameters for sending messages, Procs/lambdas
     # are evaluated on #deliver. Ensure to use only symbols as keys. Contains
-    # `:allow_adaption => true` as default.
+    # `allow_adaption: true` as default.
     #
     # Examples:
     #
@@ -155,7 +155,7 @@ module MoteSMS
     #
     # Returns String with numbers separated by ;.
     def prepare_numbers(number_list)
-      number_list.normalized_numbers.map { |n| Phony.formatted(n, :format => :international_relative, :spaces => '') }.join(';')
+      number_list.normalized_numbers.map { |n| Phony.formatted(n, format: :international_relative, spaces: '') }.join(';')
     end
 
     # Internal: Prepare parameters for sending POST to endpoint, merges defaults,
@@ -167,10 +167,10 @@ module MoteSMS
     # Returns Array with params.
     def post_params(message, options)
       params = prepare_options options
-      params.merge! :username => self.username,
-                    :password => self.password,
-                    :origin => message.from ? message.from.to_number : params[:origin],
-                    :text => message.body,
+      params.merge! username: self.username,
+                    password: self.password,
+                    origin: message.from ? message.from.to_number : params[:origin],
+                    text: message.body,
                     :'call-number' => prepare_numbers(message.to)
 
       # Post process params (Procs & allow_adaption)
