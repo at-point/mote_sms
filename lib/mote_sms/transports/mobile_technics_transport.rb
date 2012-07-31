@@ -129,7 +129,7 @@ module MoteSMS
     #
     # Returns Net::HTTP client instance.
     def http_client(uri)
-      Net::HTTP.new uri.host, uri.port do |http|
+      Net::HTTP.new(uri.host, uri.port).tap do |http|
         # SSL support
         if uri.instance_of?(URI::HTTPS)
           http.use_ssl = true
