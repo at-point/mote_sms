@@ -17,8 +17,9 @@ Gem::Specification.new do |gem|
   gem.require_paths = %w{lib}
   gem.version       = MoteSMS::VERSION
 
+  gem.required_ruby_version = '>= 1.9'
+
   gem.add_dependency 'phony', ['~> 1.7.0']
-  gem.add_dependency 'httparty', ['>= 0.8']
 
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rspec', ['~> 2.10']
