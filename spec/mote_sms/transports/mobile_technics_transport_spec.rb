@@ -54,4 +54,52 @@ describe MoteSMS::MobileTechnicsTransport do
       subject.deliver(message).should == %w{43797917}
     end
   end
+
+  context "#options" do
+    it 'can be passed in as last item in the constructor' do
+      transport = described_class.new endpoint, 'user', 'pass', :allow_adaption => false, :validity => 30
+      transport.options[:allow_adaption].should be_false
+      transport.options[:validity].should == 30
+      transport.options[:something].should be_nil
+    end
+
+    it 'should be exposed as hash' do
+      subject.options[:messageid] = "test"
+      subject.options[:messageid].should == "test"
+    end
+
+    it 'overrides settings from #defaults' do
+      described_class.defaults[:something] = 'global'
+      subject.options[:something] = 'local'
+
+      stub_request(:post, endpoint).with(:body => hash_including('something' => 'local')).to_return(success)
+      subject.deliver message
+    end
+
+    it 'is overriden by options passed to #deliver' do
+      subject.options[:something] = 'local'
+
+      stub_request(:post, endpoint).with(:body => hash_including('something' => 'deliver')).to_return(success)
+      subject.deliver message, :something => 'deliver'
+    end
+
+    it 'evaluates Procs & lambdas' do
+      subject.options[:messageid] = Proc.new { "test" }
+
+      stub_request(:post, endpoint).with(:body => hash_including('messageid' => 'test')).to_return(success)
+      subject.deliver message
+    end
+
+    it 'converts allow_adaption to 1 when true' do
+      subject.options[:allow_adaption] = true
+      stub_request(:post, endpoint).with(:body => hash_including('allow_adaption' => '1')).to_return(success)
+      subject.deliver message
+    end
+
+    it 'converts allow_adaption to 0 when false' do
+      subject.options[:allow_adaption] = nil
+      stub_request(:post, endpoint).with(:body => hash_including('allow_adaption' => '0')).to_return(success)
+      subject.deliver message
+    end
+  end
 end
