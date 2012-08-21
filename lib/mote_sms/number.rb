@@ -38,9 +38,10 @@ module MoteSMS
     #
     def parse_raw_number
       unless vanity?
-        raise ArgumentError, "Unable to parse #{@raw_number} as number" unless Phony.plausible?(@raw_number)
+        raise ArgumentError, "Unable to parse #{@raw_number} as number" unless @raw_number.to_s =~ /\A[\d\.\/\-\s\(\)\+]+\z/
+        cc = @options[:cc]
         normalized = Phony.normalize(@raw_number)
-        normalized = "#{@options[:cc]}#{normalized}" unless @options[:cc] && normalized.start_with?(@options[:cc])
+        normalized = "#{cc}#{normalized}" unless cc && normalized.start_with?(cc)
         raise ArgumentError, "Wrong national destination code #{@raw_number}" unless Phony.plausible?(normalized, @options)
 
         @number = Phony.normalize normalized
@@ -48,6 +49,8 @@ module MoteSMS
         @number = @raw_number.gsub(/[^A-Z0-9]/i, '').upcase.strip
         raise ArgumentError, "Invalid vanity number #{@raw_number}" if @number.length == 0 || @number.length > 11
       end
+    rescue NoMethodError
+      raise ArgumentError, "Unable to parse #{@raw_number} using phony"
     end
   end
 end
