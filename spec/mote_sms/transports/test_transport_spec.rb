@@ -6,12 +6,12 @@ describe MoteSMS::TestTransport do
   before { MoteSMS.deliveries.clear }
 
   it 'defines global #deliveries' do
-    MoteSMS.should respond_to(:deliveries)
+    expect(MoteSMS).to respond_to(:deliveries)
   end
 
   it 'appends deliveries' do
     subject.deliver "firstMessage"
     subject.deliver "secondMessage"
-    MoteSMS.deliveries.should == %w{firstMessage secondMessage}
+    expect(MoteSMS.deliveries).to be == %w{firstMessage secondMessage}
   end
 end

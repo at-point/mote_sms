@@ -36,15 +36,15 @@ describe MoteSMS::Number do
 
   context 'non conforming number' do
     it 'raises error when creating' do
-      Proc.new { described_class.new('what ever?') }.should raise_error(ArgumentError, /unable to parse/i)
-      Proc.new { described_class.new('0000') }.should raise_error(ArgumentError)
-      Proc.new { described_class.new('123456789012345678901') }.should raise_error(ArgumentError)
+      expect { described_class.new('what ever?') }.to raise_error(ArgumentError, /unable to parse/i)
+      expect { described_class.new('0000') }.to raise_error(ArgumentError)
+      expect { described_class.new('123456789012345678901') }.to raise_error(ArgumentError)
     end
   end
 
   context 'wrong cc/ndc' do
     it 'raises error when creating instance with wrong ndc' do
-      Proc.new { described_class.new('+41 44 364 35 33', cc: '41', ndc: '43') }.should raise_error(ArgumentError, /national destination/i)
+      expect { described_class.new('+41 44 364 35 33', cc: '41', ndc: '43') }.to raise_error(ArgumentError, /national destination/i)
     end
   end
 
@@ -57,13 +57,13 @@ describe MoteSMS::Number do
     its(:vanity?) { should be_true }
 
     it 'raises error if more than 11 alpha numeric chars' do
-      Proc.new { described_class.new('1234567890AB', vanity: true) }.should raise_error(ArgumentError, /invalid vanity/i)
+      expect { described_class.new('1234567890AB', vanity: true) }.to raise_error(ArgumentError, /invalid vanity/i)
     end
 
     it 'can also be normal phone number' do
       num = described_class.new('0800 123 12 12', vanity: true)
-      num.to_s.should == '08001231212'
-      num.to_number.should == '08001231212'
+      expect(num.to_s).to be == '08001231212'
+      expect(num.to_number).to be == '08001231212'
     end
   end
 end

@@ -19,9 +19,9 @@ describe MoteSMS::ActionMailerTransport do
 
   it 'sends SMS as e-mail' do
     subject.deliver message
-    email.to.should == ["sms@example.com"]
-    email.from.should == ["sms@example.com"]
-    email.subject.should == "SMS to +41 79 123 12 12"
-    email.body.should == "This is the SMS content"
+    expect(email.to).to be == ["sms@example.com"]
+    expect(email.from).to be == ["sms@example.com"]
+    expect(email.subject).to be == "SMS to +41 79 123 12 12"
+    expect(email.body).to be == "This is the SMS content"
   end
 end

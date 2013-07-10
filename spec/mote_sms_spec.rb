@@ -5,7 +5,7 @@ describe MoteSMS do
   subject { described_class }
 
   it 'has a version' do
-    subject::VERSION.should =~ /\d/
+    expect(subject::VERSION).to match /\d/
   end
 
   context "transport" do
@@ -14,23 +14,23 @@ describe MoteSMS do
     let(:transport) { double("transport") }
 
     it "has no default transport" do
-      subject.transport.should be_nil
+      expect(subject.transport).to be_nil
     end
 
     it "can change global transport" do
       subject.transport = transport
-      subject.transport.should == transport
+      expect(subject.transport).to be == transport
     end
 
     context "#deliver" do
       it 'delivers quick and dirty using global transport' do
-        transport.should_receive(:deliver).with(kind_of(MoteSMS::Message), {})
+        expect(transport).to receive(:deliver).with(kind_of(MoteSMS::Message), {})
         subject.transport = transport
         subject.deliver { body 'Hello World' }
       end
 
       it 'raises error if block is missing' do
-        Proc.new { subject.deliver }.should raise_error(ArgumentError, /block missing/i)
+        expect { subject.deliver }.to raise_error(ArgumentError, /block missing/i)
       end
     end
   end

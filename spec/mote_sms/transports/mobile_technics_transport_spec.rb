@@ -7,7 +7,7 @@ require 'mote_sms/transports/mobile_technics_transport'
 describe MoteSMS::MobileTechnicsTransport do
   before do
     @logger = described_class.logger
-    described_class.logger = stub(debug: true, info: true, error: true)
+    described_class.logger = double("logger", debug: true, info: true, error: true)
   end
 
   after do
@@ -33,10 +33,10 @@ describe MoteSMS::MobileTechnicsTransport do
     it "sends POST to endpoint with URL encoded body" do
       stub_request(:post, endpoint).with do |req|
         params = CGI.parse(req.body)
-        params['username'].should == %w{example}
-        params['password'].should == %w{123456}
-        params['text'].should == ['Hello World, with äöü.']
-        params['call-number'].should == ['0041791231212']
+        expect(params['username']).to be == %w{example}
+        expect(params['password']).to be == %w{123456}
+        expect(params['text']).to be == ['Hello World, with äöü.']
+        expect(params['call-number']).to be == ['0041791231212']
       end.to_return(success)
       subject.deliver message
     end
@@ -51,17 +51,17 @@ describe MoteSMS::MobileTechnicsTransport do
 
     it 'raises exception if required parameter is missing' do
       stub_request(:post, endpoint).to_return(body: 'Result_code: 02, call-number')
-      Proc.new { subject.deliver message }.should raise_error(MoteSMS::MobileTechnicsTransport::ServiceError)
+      expect { subject.deliver message }.to raise_error(MoteSMS::MobileTechnicsTransport::ServiceError)
     end
 
     it 'raises exception if status code is not 200' do
       stub_request(:post, endpoint).to_return(status: 500)
-      Proc.new { subject.deliver message }.should raise_error(MoteSMS::MobileTechnicsTransport::ServiceError)
+      expect { subject.deliver message }.to raise_error(MoteSMS::MobileTechnicsTransport::ServiceError)
     end
 
     it 'returns message id' do
       stub_request(:post, endpoint).to_return(success)
-      subject.deliver(message).should == %w{43797917}
+      expect(subject.deliver(message)).to be == %w{43797917}
     end
 
     it 'logs curl compatible output' do
@@ -70,21 +70,21 @@ describe MoteSMS::MobileTechnicsTransport do
       stub_request(:post, endpoint).to_return(success)
       subject.deliver message
       io.rewind
-      io.read.should =~ %r{curl -XPOST 'http://test.nth.ch' -d 'allow_adaption=1&}
+      expect(io.read).to match %r{curl -XPOST 'http://test.nth.ch' -d 'allow_adaption=1&}
     end
   end
 
   context "#options" do
     it 'can be passed in as last item in the constructor' do
       transport = described_class.new endpoint, 'user', 'pass', allow_adaption: false, validity: 30
-      transport.options[:allow_adaption].should be_false
-      transport.options[:validity].should == 30
-      transport.options[:something].should be_nil
+      expect(transport.options[:allow_adaption]).to be_false
+      expect(transport.options[:validity]).to be == 30
+      expect(transport.options[:something]).to be_nil
     end
 
     it 'should be exposed as hash' do
       subject.options[:messageid] = "test"
-      subject.options[:messageid].should == "test"
+      expect(subject.options[:messageid]).to be == "test"
     end
 
     it 'overrides settings from #defaults' do
