@@ -20,14 +20,25 @@ module MoteSMS
     # Maximum recipients allowed by API
     MAX_RECIPIENT = 100
 
+    # Path to certificates
+    CERTS_PATH = File.expand_path File.join(File.dirname(__FILE__), '..', 'ssl_certs')
+
     # Custom exception subclass.
     ServiceError = Class.new(::Exception)
 
-    # Accessible attributes
-    attr_accessor :endpoint, :username, :password, :logger
+    # Readable attributes
+    attr_reader :endpoint, :username, :password, :options
 
-    # Options are readable as hash
-    attr_reader :options
+    def self.default_cert_store
+      @cert_store ||= OpenSSL::X509::Store.new.tap do |store|
+        Dir["#{CERTS_PATH}/*CA.pem"].each { |c| store.add_file c }
+      end
+    end
+
+    def self.fingerprint_cert(host)
+      cert = "#{CERTS_PATH}/#{host}.pem"
+      OpenSSL::X509::Certificate.new(File.read(cert)) if File.exists?(cert)
+    end
 
     # Public: Global default parameters for sending messages, Procs/lambdas
     # are evaluated on #deliver. Ensure to use only symbols as keys. Contains
@@ -40,7 +51,12 @@ module MoteSMS
     # Returns Hash with options.
     def self.defaults
       @@options ||= {
-        allow_adaption: true
+        allow_adaption: true,
+        ssl: ->(http) {
+          http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+          http.verify_depth = 9
+          http.cert_store = self.default_cert_store
+        }
       }
     end
 
@@ -65,16 +81,17 @@ module MoteSMS
     # Public: Create a new instance using specified endpoint, username
     # and password.
     #
-    # endpoint - The String with the URL (with protocol et all) to nth gateway.
     # username - The String with username.
     # password - The String with password.
-    # options - The Hash with additional options.
+    # options - The Hash with additional URL params passed to mobile techics endpoint
+    #           :endpoint - The String with the URL, defaults to https://mygateway.nth.ch
+    #           :ssl - SSL client options
     #
     # Returns a new instance.
     def initialize(endpoint, username, password, options = nil)
-      self.endpoint = endpoint
-      self.username = username
-      self.password = password
+      @endpoint = URI.parse(endpoint)
+      @username = username
+      @password = password
       @options = options || {}
     end
 
@@ -85,28 +102,28 @@ module MoteSMS
     #
     # Returns Array with sender ids.
     def deliver(message, options = {})
-      raise ArgumentError, "Too many recipients, max. is #{MAX_RECIPIENT} (current: #{message.to.length})" if message.to.length > MAX_RECIPIENT
+      raise ArgumentError, "too many recipients, max. is #{MAX_RECIPIENT} (current: #{message.to.length})" if message.to.length > MAX_RECIPIENT
 
       # Prepare request
-      uri = URI.parse endpoint
-      http = http_client uri
-      request = http_request uri, post_params(message, options)
+      options = prepare_options options
+      http = http_client options
+      request = http_request post_params(message, options)
 
-      # Log
-      self.class.logger.debug "curl -X#{request.method} #{http.use_ssl? ? '-k ' : ''}'#{endpoint}' -d '#{request.body}'"
+      # Log as `curl` request
+      self.class.logger.debug "curl -X#{request.method} '#{endpoint}' -d '#{request.body}'"
 
       # Perform request
-      resp = http.request request
+      resp = http.request(request)
 
       # Handle errors
-      raise ServiceError, "Endpoint did respond with #{resp.code}" unless resp.code.to_i == 200
-      raise ServiceError, "Endpoint was unable to deliver message to all recipients" unless resp.body.split("\n").all? { |l| l =~ /Result_code: 00/ }
+      raise ServiceError, "endpoint did respond with #{resp.code}" unless resp.code.to_i == 200
+      raise ServiceError, "unable to deliver message to all recipients (CAUSE: #{resp.body.strip})" unless resp.body.split("\n").all? { |l| l =~ /Result_code: 00/ }
 
       # extract Nth-SmsIds
       resp['X-Nth-SmsId'].split(',')
     end
 
-    protected
+    private
 
     # Internal: Prepare request including body, headers etc.
     #
@@ -114,48 +131,52 @@ module MoteSMS
     # params - The Array with the attributes.
     #
     # Returns Net::HTTP::Post instance.
-    def http_request(uri, params)
-      Net::HTTP::Post.new(uri.request_uri).tap do |request|
+    def http_request(params)
+      Net::HTTP::Post.new(endpoint.request_uri).tap do |request|
         request.body = URI.encode_www_form params
         request.content_type = 'application/x-www-form-urlencoded; charset=utf-8'
       end
     end
 
     # Internal: Build new Net::HTTP instance, enables SSL if requested.
-    # FIXME: Add ability to change verify_mode, so e.g. certificates can be
-    # verified!
     #
-    # uri - The URI from the endpoint.
+    # options - The Hash with all options
     #
     # Returns Net::HTTP client instance.
-    def http_client(uri)
-      Net::HTTP.new(uri.host, uri.port).tap do |http|
-        # SSL support
-        if uri.instance_of?(URI::HTTPS)
+    def http_client(options)
+      Net::HTTP.new(endpoint.host, endpoint.port).tap do |http|
+        if endpoint.instance_of?(URI::HTTPS)
+          cert = self.class.fingerprint_cert(endpoint.host)
           http.use_ssl = true
-          http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+          http.verify_callback = ->(ok, store) { verify_fingerprint(cert.serial, ok, store) } if cert
+          options[:ssl].call(http) if options[:ssl].respond_to?(:call)
         end
       end
     end
 
+    # Public: Verify SSL server certifcate when a certificate is available in
+    # mote_sms/ssl_certs/{host}.pem. Implemented to return false if first
+    # certificate in chain does not match the expected serial.
+    #
+    # serial - The expected server certificates serial
+    # ok - The Boolean forwarded by verify_callback
+    # store - The OpenSSL::X509::Store instance with the chain
+    #
+    # Returns Boolean
+    def verify_fingerprint(serial, ok, store)
+      return false unless store.chain.first.serial == serial
+      ok
+    end
+
     # Internal: Merge defaults from class and instance with options
-    # supplied to #deliver.
+    # supplied to #deliver. Removes `:http` options, because those
+    # are only for the HTTP client to set ssl verify mode et all.
     #
     # options - The Hash to merge with #defaults and #options.
     #
     # Returns Hash.
     def prepare_options(options)
-      self.class.defaults.merge(self.options).merge(options)
-    end
-
-    # Internal: Convert NumberList instance to ; separated string with international
-    # relative formatted numbers. Formatting is done using phony.
-    #
-    # number_list - The NumberList instance.
-    #
-    # Returns String with numbers separated by ;.
-    def prepare_numbers(number_list)
-      number_list.normalized_numbers.map { |n| Phony.formatted(n, format: :international_relative, spaces: '') }.join(';')
+      options = self.class.defaults.merge(self.options).merge(options)
     end
 
     # Internal: Prepare parameters for sending POST to endpoint, merges defaults,
@@ -166,7 +187,7 @@ module MoteSMS
     #
     # Returns Array with params.
     def post_params(message, options)
-      params = prepare_options options
+      params = options.reject { |key, v| key == :ssl }
       params.merge! username: self.username,
                     password: self.password,
                     origin: message.from ? message.from.to_number : params[:origin],
@@ -178,8 +199,18 @@ module MoteSMS
         value = value.call(message) if value.respond_to?(:call)
         value = value ? 1 : 0 if param == :allow_adaption
 
-        [param.to_s, value.to_s]
-      end
+        [param.to_s, value.to_s] if value
+      end.compact
+    end
+
+    # Internal: Convert NumberList instance to ; separated string with international
+    # relative formatted numbers. Formatting is done using phony.
+    #
+    # number_list - The NumberList instance.
+    #
+    # Returns String with numbers separated by ;.
+    def prepare_numbers(number_list)
+      number_list.normalized_numbers.map { |n| Phony.formatted(n, format: :international_relative, spaces: '') }.join(';')
     end
   end
 end
