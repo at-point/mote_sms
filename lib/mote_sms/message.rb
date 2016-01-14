@@ -86,6 +86,11 @@ module MoteSMS
       @to
     end
 
+    def transport=(trans)
+      Kernel.warn 'Message#transport= is deprecated and will be removed from MoteSMS'
+      @transport = trans
+    end
+
     # Public: Deliver message using defined transport, to select the correct
     # transport method uses any of these values:
     #
@@ -95,8 +100,20 @@ module MoteSMS
     #
     # Returns result of transport#deliver.
     def deliver(options = {})
+      Kernel.warn 'Message#deliver is deprecated and will be removed from MoteSMS. Please use #deliver_now'
+      deliver_now options
+    end
+
+    def deliver_now(options = {})
+      Kernel.warn 'options[:transport] in Message#deliver_now is deprecated and will be removed from MoteSMS' if options[:transport]
       transport = options.delete(:transport) || self.transport || MoteSMS.transport
       transport.deliver(self, options)
+    end
+
+    def deliver_later(options = {})
+      return Kernel.warn 'options[:transport] is not supported in Message#deliveer_later' if options.delete(:transport)
+      raise 'huhuhu' unless defined?(ActiveJob)
+      DeliveryJob.perform_later @from, @to, @body, options
     end
   end
 end

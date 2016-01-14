@@ -32,29 +32,61 @@ describe MoteSMS::Message do
   end
 
   context "#deliver" do
+    subject { described_class.new }
+
+    it "delegates to deliver_now and deprecates it" do
+      expect(subject).to receive(:deliver_now)
+      expect(Kernel).to receive(:warn).with('Message#deliver is deprecated and will be removed from MoteSMS. Please use #deliver_now')
+      subject.deliver
+    end
+  end
+
+  context "#deliver_now" do
     let(:transport) { double("Some Transport") }
     subject { described_class.new(transport) }
 
     it "sends messages to transport" do
       expect(transport).to receive(:deliver).with(subject, {})
-      subject.deliver
+      subject.deliver_now
     end
 
     it "can pass additional attributes to transport" do
       expect(transport).to receive(:deliver).with(subject, serviceid: "myapplication")
-      subject.deliver serviceid: "myapplication"
+      subject.deliver_now serviceid: "myapplication"
     end
 
-    it "can override per message transport using :transport option" do
+    it "can override per message transport using :transport option and it deprecates it" do
       expect(transport).to_not receive(:deliver)
-      subject.deliver transport: double(deliver: true)
+      expect(Kernel).to receive(:warn).with('options[:transport] in Message#deliver_now is deprecated and will be removed from MoteSMS')
+      subject.deliver_now transport: double(deliver: true)
     end
 
     it "uses global MoteSMS.transport if no per message transport defined" do
       message = described_class.new
       expect(transport).to receive(:deliver).with(message, {})
       expect(MoteSMS).to receive(:transport) { transport }
-      message.deliver
+      message.deliver_now
+    end
+  end
+
+  context "#deliver_later" do
+    subject do
+      described_class.new do
+        from 'SENDER'
+        to '+41 79 123 12 12'
+        body 'This is the SMS content'
+      end
+    end
+
+    it "can not override per message transport using :transport option and it deprecates it" do
+      expect(Kernel).to receive(:warn).with('options[:transport] is not supported in Message#deliveer_later')
+     #  expect(DeliveryJob).to_not receive(:perform_later)
+      subject.deliver_later transport: double(deliver: true)
+    end
+
+    it "queues the delivery in the DeliveryJob" do
+      expect(DeliveryJob).to receive(:perform_later).with('SENDER', '+41 79 123 12 12', 'This is the SMS content')
+      subject.deliver_later
     end
   end
 end

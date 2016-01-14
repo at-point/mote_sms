@@ -3,8 +3,8 @@ require File.expand_path('../lib/mote_sms/version', __FILE__)
 
 Gem::Specification.new do |gem|
   gem.name          = 'mote_sms'
-  gem.authors       = ['Lukas Westermann']
-  gem.email         = ['lukas.westermann@at-point.ch']
+  gem.authors       = ['Lukas Westermann', 'Loris Gavillet']
+  gem.email         = ['lukas.westermann@at-point.ch', 'loris@at-point.ch']
   gem.summary       = %q{Deliver SMS using MobileTechnics HTTP API.}
   gem.description   = %q{Unofficial ruby adapter for MobileTechnics HTTP Bulk SMS API.
                          Tries to mimick mail API, so users can switch e.g. ActionMailer

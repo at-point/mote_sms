@@ -1,9 +1,10 @@
 require 'mote_sms/transports'
 
 module MoteSMS
-  autoload :Number,     'mote_sms/number'
-  autoload :NumberList, 'mote_sms/number_list'
-  autoload :Message,    'mote_sms/message'
+  autoload :Number,      'mote_sms/number'
+  autoload :NumberList,  'mote_sms/number_list'
+  autoload :Message,     'mote_sms/message'
+  autoload :DeliveryJob, 'mote_sms/delivery_job'
 
   autoload :VERSION,    'mote_sms/version'
 
