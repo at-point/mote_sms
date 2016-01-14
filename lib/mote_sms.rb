@@ -10,6 +10,24 @@ module MoteSMS
 
   # No default transport.
   @@transport = nil
+  @@delayed_delivery_queue = :default
+
+  # Public: Get globally defined queue name for ActiveJob, if any.
+  # Defaults to `nil`.
+  #
+  # Returns global ActiveJob queue name.
+  def self.delayed_delivery_queue
+    @@delayed_delivery_queue
+  end
+
+  # Public: Set global queue name for ActiveJob
+  #
+  # queue - A string or symbol that represents the queue to use for ActiveJob
+  #
+  # Returns nothing.
+  def self.delayed_delivery_queue=(queue)
+    @@delayed_delivery_queue = queue
+  end
 
   # Public: Get globally defined transport method, if any.
   # Defaults to `nil`.

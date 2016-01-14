@@ -1,5 +1,6 @@
 require 'spec_helper'
-require 'mote_sms/message'
+require 'mote_sms'
+require 'active_job'
 
 describe MoteSMS::Message do
   it 'can be constructed using a block' do
@@ -70,6 +71,9 @@ describe MoteSMS::Message do
   end
 
   context "#deliver_later" do
+    before { MoteSMS.transport = MoteSMS::TestTransport }
+    after { MoteSMS.transport = nil }
+
     subject do
       described_class.new do
         from 'SENDER'
@@ -80,13 +84,17 @@ describe MoteSMS::Message do
 
     it "can not override per message transport using :transport option and it deprecates it" do
       expect(Kernel).to receive(:warn).with('options[:transport] is not supported in Message#deliveer_later')
-     #  expect(DeliveryJob).to_not receive(:perform_later)
+      expect(MoteSMS::DeliveryJob).to_not receive(:perform_later)
       subject.deliver_later transport: double(deliver: true)
     end
 
     it "queues the delivery in the DeliveryJob" do
-      expect(DeliveryJob).to receive(:perform_later).with('SENDER', '+41 79 123 12 12', 'This is the SMS content')
       subject.deliver_later
+      job = ActiveJob::Base.queue_adapter.enqueued_jobs.first
+      expect(job[:job]).to eq MoteSMS::DeliveryJob
+      expect(job[:args]).to include 'SENDER'
+      expect(job[:args]).to include ['41791231212']
+      expect(job[:args]).to include 'This is the SMS content'
     end
   end
 end

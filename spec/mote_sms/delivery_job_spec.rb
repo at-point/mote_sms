@@ -1,15 +1,13 @@
 require 'spec_helper'
+require 'mote_sms'
 
-unless defined?(ActiveJob)
-  Kernel.warn 'ATTENTION - ActiveJob is not defined, specs in delivery_job_spec.rb are not executed'
-else
-  require 'mote_sms/delivery_job'
+describe MoteSMS::DeliveryJob do
+  subject { described_class.new }
 
-  describe MoteSMS::DeliveryJob do
-    context '#perform' do
-      expect any_instance_of(Message).to receive(:deliver_now).with(d: 123)
-      expect(Message).to receive(:new)
-      subject.perform('a', 'b', 'c', d: 123)
+  context '#perform' do
+    it 'creates a new message based on the params and delivers it' do
+      expect_any_instance_of(MoteSMS::Message).to receive(:deliver_now).with(d: 123)
+      subject.perform('SENDER', ['41791231212'], 'This is the SMS content', d: 123)
     end
   end
 end

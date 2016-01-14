@@ -60,7 +60,7 @@ module MoteSMS
     # Public: Asign an instance of Number instead of the direct
     # string, so only vanity numbers are allowed.
     def from=(val)
-      @from = val ? Number.new(val, :vanity => true) : nil
+      @from = val ? Number.new(val, vanity: true) : nil
     end
 
     # Public: Set to multiple arguments or array, or whatever.
@@ -113,7 +113,7 @@ module MoteSMS
     def deliver_later(options = {})
       return Kernel.warn 'options[:transport] is not supported in Message#deliveer_later' if options.delete(:transport)
       raise 'huhuhu' unless defined?(ActiveJob)
-      DeliveryJob.perform_later @from, @to, @body, options
+      DeliveryJob.set(options).perform_later @from.to_s, @to.normalized_numbers, @body, options
     end
   end
 end
