@@ -44,7 +44,10 @@ describe MoteSMS::Message do
 
   context "#deliver_now" do
     let(:transport) { double("Some Transport") }
-    subject { described_class.new(transport) }
+    subject {
+      expect(Kernel).to receive(:warn).with('Message#new(transport) is deprecated and will be removed from MoteSMS')
+      described_class.new(transport)
+    }
 
     it "sends messages to transport" do
       expect(transport).to receive(:deliver).with(subject, {})
