@@ -113,7 +113,6 @@ module MoteSMS
 
     def deliver_later(options = {})
       return Kernel.warn 'options[:transport] is not supported in Message#deliveer_later' if options.delete(:transport)
-      raise 'huhuhu' unless defined?(ActiveJob)
       DeliveryJob.set(options).perform_later @from.to_s, @to.normalized_numbers, @body, options
     end
   end
