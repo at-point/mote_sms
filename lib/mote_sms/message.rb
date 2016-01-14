@@ -28,6 +28,7 @@ module MoteSMS
     #
     # Returns a new instance.
     def initialize(transport = nil, &block)
+      Kernel.warn 'Message#new(transport) is deprecated and will be removed from MoteSMS' if transport
       @transport = transport
       @to = MoteSMS::NumberList.new
       instance_eval(&block) if block_given?
