@@ -77,7 +77,7 @@ describe MoteSMS::MobileTechnicsTransport do
   context "#options" do
     it 'can be passed in as last item in the constructor' do
       transport = described_class.new endpoint, 'user', 'pass', allow_adaption: false, validity: 30
-      expect(transport.options[:allow_adaption]).to be_false
+      expect(transport.options[:allow_adaption]).to be_falsey
       expect(transport.options[:validity]).to be == 30
       expect(transport.options[:something]).to be_nil
     end

@@ -11,9 +11,9 @@ describe MoteSMS::NumberList do
   end
 
   it 'has empty?' do
-    expect(subject.empty?).to be_true
+    expect(subject.empty?).to be_truthy
     subject << '+41 79 111 22 33'
-    expect(subject.empty?).to be_false
+    expect(subject.empty?).to be_falsey
   end
 
   it 'can add numbers by string' do
