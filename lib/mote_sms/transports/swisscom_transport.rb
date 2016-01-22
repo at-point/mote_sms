@@ -13,11 +13,11 @@ module MoteSMS
   #
   # Examples:
   #
-  #    transport = MoteSMS::MobileTechnicsTransport.new 'https://mygateway.nth.ch', 'username', 'password'
+  #    transport = MoteSMS::SwisscomTransport.new 'https://mygateway.nth.ch', 'username', 'password'
   #    transport.deliver message
   #    # => ['000-791234', '001-7987324']
   #
-  class MobileTechnicsTransport
+  class SwisscomTransport
     include SslTransport
 
     # Maximum recipients allowed by API
@@ -27,7 +27,7 @@ module MoteSMS
     ServiceError = Class.new(::Exception)
 
     # Readable attributes
-    attr_reader :endpoint, :username, :password, :options
+    attr_reader :endpoint, :api_key, :options
 
     # Public: Global default parameters for sending messages, Procs/lambdas
     # are evaluated on #deliver. Ensure to use only symbols as keys. Contains
@@ -67,20 +67,18 @@ module MoteSMS
       @@logger = logger
     end
 
-    # Public: Create a new instance using specified endpoint, username
+    # Public: Create a new instance using specified endpoint, api_key
     # and password.
     #
-    # username - The String with username.
-    # password - The String with password.
+    # api_key - The String with the API key.
     # options - The Hash with additional URL params passed to mobile techics endpoint
     #           :endpoint - The String with the URL, defaults to https://mygateway.nth.ch
     #           :ssl - SSL client options
     #
     # Returns a new instance.
-    def initialize(endpoint, username, password, options = nil)
+    def initialize(endpoint, api_key, options = nil)
       @endpoint = URI.parse(endpoint)
-      @username = username
-      @password = password
+      @api_key = api_key
       @options = options || {}
     end
 
@@ -96,7 +94,7 @@ module MoteSMS
       # Prepare request
       options = prepare_options options
       http = http_client options
-      request = http_request post_params(message, options)
+      request = http_request message.from.to_number, post_params(message, options)
 
       # Log as `curl` request
       self.class.logger.debug "curl -X#{request.method} '#{endpoint}' -d '#{request.body}'"
@@ -105,11 +103,8 @@ module MoteSMS
       resp = http.request(request)
 
       # Handle errors
-      raise ServiceError, "endpoint did respond with #{resp.code}" unless resp.code.to_i == 200
-      raise ServiceError, "unable to deliver message to all recipients (CAUSE: #{resp.body.strip})" unless resp.body.split("\n").all? { |l| l =~ /Result_code: 00/ }
-
-      # extract Nth-SmsIds
-      resp['X-Nth-SmsId'].split(',')
+      raise ServiceError, "endpoint did respond with #{resp.code} and #{resp.body}" unless resp.code.to_i == 200
+      self.class.logger.debug resp.body
     end
 
     private
@@ -117,13 +112,15 @@ module MoteSMS
     # Internal: Prepare request including body, headers etc.
     #
     # uri - The URI from the endpoint.
-    # params - The Array with the attributes.
+    # params - The Array wifromth the attributes.
     #
     # Returns Net::HTTP::Post instance.
-    def http_request(params)
-      Net::HTTP::Post.new(endpoint.request_uri).tap do |request|
-        request.body = URI.encode_www_form params
-        request.content_type = 'application/x-www-form-urlencoded; charset=utf-8'
+    def http_request(from, params)
+      Net::HTTP::Post.new('/v1/messaging/sms/outbound/tel:{from}/requests').tap do |request|
+        request.body = params.to_json
+        request.content_type = 'application/json; charset=utf-8'
+        request['Accept'] = 'application/json; charset=utf-8'
+        request['client_id'] = api_key
       end
     end
 
@@ -176,20 +173,14 @@ module MoteSMS
     #
     # Returns Array with params.
     def post_params(message, options)
-      params = options.reject { |key, v| key == :ssl }
-      params.merge! username: self.username,
-                    password: self.password,
-                    origin: message.from ? message.from.to_number : params[:origin],
-                    text: message.body,
-                    :'call-number' => prepare_numbers(message.to)
-
-      # Post process params (Procs & allow_adaption)
-      params.map do |param, value|
-        value = value.call(message) if value.respond_to?(:call)
-        value = value ? 1 : 0 if param == :allow_adaption
-
-        [param.to_s, value.to_s] if value
-      end.compact
+      {
+        outboundSMSMessageRequest: {
+          senderAddress: "tel:#{message.from.to_number}",
+          address: prepare_numbers(message.to),
+          outboundSMSTextMessage: { message: message.body },
+          clientCorrelator: options[:messageid]
+        }.compact
+      }
     end
 
     # Internal: Convert NumberList instance to ; separated string with international
@@ -199,7 +190,7 @@ module MoteSMS
     #
     # Returns String with numbers separated by ;.
     def prepare_numbers(number_list)
-      number_list.normalized_numbers.map { |n| Phony.formatted(n, format: :international_relative, spaces: '') }.join(';')
+      number_list.normalized_numbers.map { |n| 'tel:' + Phony.formatted(n, format: :international_absolute, spaces: '') }
     end
   end
 end
