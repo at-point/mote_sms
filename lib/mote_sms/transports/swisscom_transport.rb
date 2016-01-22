@@ -13,7 +13,7 @@ module MoteSMS
   #
   # Examples:
   #
-  #    transport = MoteSMS::SwisscomTransport.new 'https://mygateway.nth.ch', 'username', 'password'
+  #    transport = MoteSMS::SwisscomTransport.new 'https://api.swisscom.com/', 'ApIkEy'
   #    transport.deliver message
   #    # => ['000-791234', '001-7987324']
   #
