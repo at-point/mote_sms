@@ -8,6 +8,7 @@ rvm:
 gemfile:
   - Gemfile
   - gemfiles/phony1.7.gemfile
+  - gemfiles/rails5.0.gemfile
 
 before_install:
   - gem install bundler

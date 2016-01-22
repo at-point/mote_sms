@@ -24,6 +24,6 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rspec', ['~> 2.4']
   gem.add_development_dependency 'webmock', ['~> 1.8.0']
-  gem.add_development_dependency 'actionmailer', ['>= 3.2']
-  gem.add_development_dependency 'activejob', ['>= 4.2']
+  gem.add_development_dependency 'actionmailer', ['>= 4.2', '< 6']
+  gem.add_development_dependency 'activejob', ['>= 4.2', '< 6']
 end
