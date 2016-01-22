@@ -2,5 +2,15 @@ language: ruby
 rvm:
   - jruby-19mode
   - 1.9.3
-  - 2.0.0
-  - 2.1.0
+  - 2.1.7
+  - 2.3.0
+
+gemfile:
+  - Gemfile
+  - gemfiles/phony1.7.gemfile
+
+before_install:
+  - gem install bundler
+
+sudo: false
+
