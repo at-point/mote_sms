@@ -5,11 +5,11 @@ Gem::Specification.new do |gem|
   gem.name          = 'mote_sms'
   gem.authors       = ['Lukas Westermann', 'Loris Gavillet']
   gem.email         = ['lukas.westermann@at-point.ch', 'loris@at-point.ch']
-  gem.summary       = %q{Deliver SMS using MobileTechnics HTTP API.}
-  gem.description   = %q{Unofficial ruby adapter for MobileTechnics HTTP Bulk SMS API.
+  gem.summary       = %q{Deliver SMS using Swisscom / MobileTechnics REST API.}
+  gem.description   = %q{Unofficial ruby adapter for Swisscom and MobileTechnics Bulk SMS APIs.
                          Tries to mimick mail API, so users can switch e.g. ActionMailer
                          with this SMS provider.}
-  gem.homepage      = 'https://at-point.ch/opensource'
+  gem.homepage      = 'https://github.com/at-point/mote_sms'
 
   gem.files         = %w{.gitignore Gemfile Rakefile README.md mote_sms.gemspec} + Dir['**/*.{rb,pem}']
   gem.bindir        = 'exe'
