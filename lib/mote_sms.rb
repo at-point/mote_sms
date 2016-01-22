@@ -59,6 +59,6 @@ module MoteSMS
   # Returns result of #deliver.
   def self.deliver(&block)
     raise ArgumentError, 'Block missing' unless block_given?
-    Message.new(&block).deliver
+    Message.new(&block).deliver_now
   end
 end

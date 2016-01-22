@@ -21,23 +21,16 @@ Or install it yourself as:
 ## Usage
 
 ```ruby
-# Using global transport (quick and dirty)
+# Transport configuration
 MoteSMS.transport = MoteSMS::MobileTechnicsTransport.new 'https://endpoint.com:1234', 'username', 'password'
+
+# Create a message and deliver it
 sms = MoteSMS::Message.new do
  to '+41 79 111 22 33'
  from 'ARUBYGEM'
  body 'Hello world, you know.'
 end
-sms.deliver
-```
-
-```ruby
-# Using client instance
-transport = MoteSMS::MobileTechnicsTransport.new 'https://endpoint.com:1234', 'username', 'password'
-sms = MoteSMS::Message.new do
-  # create message
-end
-sms.deliver(transport: transport)
+sms.deliver_now # OR: deliver_later
 ```
 
 ## Contributing
