@@ -37,8 +37,8 @@ describe MoteSMS::Number do
   context 'non conforming number' do
     it 'raises error when creating' do
       expect { described_class.new('what ever?') }.to raise_error(ArgumentError, /unable to parse/i)
-      expect { described_class.new('0000') }.to raise_error(Phony::NormalizationError)
-      expect { described_class.new('123456789012345678901') }.to raise_error(ArgumentError)
+      expect { described_class.new('0000') }.to raise_error(ArgumentError, /phony/i)
+      expect { described_class.new('123456789012345678901') }.to raise_error(ArgumentError, /wrong national destination/i)
     end
   end
 

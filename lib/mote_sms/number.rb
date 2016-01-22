@@ -6,6 +6,11 @@ module MoteSMS
   # issues, also a number is immutable.
   class Number
 
+    # Support both Phony 1.7 and 2.x
+    NormalizationError = Class.new(ArgumentError)
+    PhonyError = Object.const_defined?('Phony::NormalizationError') ?
+      Phony::NormalizationError : NormalizationError
+
     # Access the E164 normalized value of the number.
     attr_reader :number
     alias :to_number :number
@@ -49,6 +54,8 @@ module MoteSMS
         @number = @raw_number.gsub(/[^A-Z0-9]/i, '').upcase.strip
         raise ArgumentError, "Invalid vanity number #{@raw_number}" if @number.length == 0 || @number.length > 11
       end
+    rescue PhonyError => e
+      raise ArgumentError, e.to_s
     rescue NoMethodError
       raise ArgumentError, "Unable to parse #{@raw_number} using phony"
     end
