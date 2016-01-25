@@ -116,7 +116,8 @@ module MoteSMS
     #
     # Returns Net::HTTP::Post instance.
     def http_request(from, params)
-      Net::HTTP::Post.new('/v1/messaging/sms/outbound/tel:{from}/requests').tap do |request|
+      from = Phony.formatted(from, format: :international_absolute, spaces: '')
+      Net::HTTP::Post.new("/v1/messaging/sms/outbound/tel:#{from}/requests").tap do |request|
         request.body = params.to_json
         request.content_type = 'application/json; charset=utf-8'
         request['Accept'] = 'application/json; charset=utf-8'
@@ -173,9 +174,10 @@ module MoteSMS
     #
     # Returns Array with params.
     def post_params(message, options)
+      sender = Phony.formatted(message.from.to_number, format: :international_absolute, spaces: '')
       {
         outboundSMSMessageRequest: {
-          senderAddress: "tel:#{message.from.to_number}",
+          senderAddress: "tel:#{sender}",
           address: prepare_numbers(message.to),
           outboundSMSTextMessage: { message: message.body },
           clientCorrelator: options[:messageid]
