@@ -28,6 +28,7 @@ module MoteSMS
     #
     # Returns a new instance.
     def initialize(transport = nil, &block)
+      Kernel.warn 'Message#new(transport) is deprecated and will be removed from MoteSMS' if transport
       @transport = transport
       @to = MoteSMS::NumberList.new
       instance_eval(&block) if block_given?
@@ -60,7 +61,7 @@ module MoteSMS
     # Public: Asign an instance of Number instead of the direct
     # string, so only vanity numbers are allowed.
     def from=(val)
-      @from = val ? Number.new(val, :vanity => true) : nil
+      @from = val ? Number.new(val, vanity: true) : nil
     end
 
     # Public: Set to multiple arguments or array, or whatever.
@@ -86,6 +87,11 @@ module MoteSMS
       @to
     end
 
+    def transport=(trans)
+      Kernel.warn 'Message#transport= is deprecated and will be removed from MoteSMS'
+      @transport = trans
+    end
+
     # Public: Deliver message using defined transport, to select the correct
     # transport method uses any of these values:
     #
@@ -95,8 +101,19 @@ module MoteSMS
     #
     # Returns result of transport#deliver.
     def deliver(options = {})
+      Kernel.warn 'Message#deliver is deprecated and will be removed from MoteSMS. Please use #deliver_now'
+      deliver_now options
+    end
+
+    def deliver_now(options = {})
+      Kernel.warn 'options[:transport] in Message#deliver_now is deprecated and will be removed from MoteSMS' if options[:transport]
       transport = options.delete(:transport) || self.transport || MoteSMS.transport
       transport.deliver(self, options)
+    end
+
+    def deliver_later(options = {})
+      return Kernel.warn 'options[:transport] is not supported in Message#deliveer_later' if options.delete(:transport)
+      DeliveryJob.set(options).perform_later @from.to_s, @to.normalized_numbers, @body, options
     end
   end
 end

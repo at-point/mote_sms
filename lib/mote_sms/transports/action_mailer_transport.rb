@@ -42,7 +42,7 @@ module MoteSMS
     # Returns nothing.
     def deliver(message, options = {})
       to = self.recipient.respond_to?(:call) ? self.recipient.call(message) : self.recipient
-      ActionMailerSMSMailer.forward_sms(to, message).deliver
+      ActionMailerSMSMailer.forward_sms(to, message).deliver_now
     end
   end
 end
