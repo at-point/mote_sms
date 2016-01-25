@@ -79,7 +79,7 @@ module MoteSMS
     def initialize(endpoint, api_key, from_number, options = {})
       @endpoint = URI.parse(endpoint)
       @api_key = api_key
-      @from_number = Phony.formatted(from_number, format: :international_absolute, spaces: '')
+      @from_number = from_number
       @options = options
     end
 
