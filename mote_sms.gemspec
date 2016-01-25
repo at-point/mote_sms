@@ -12,12 +12,13 @@ Gem::Specification.new do |gem|
   gem.homepage      = 'https://at-point.ch/opensource'
 
   gem.files         = %w{.gitignore Gemfile Rakefile README.md mote_sms.gemspec} + Dir['**/*.{rb,pem}']
+  gem.bindir        = 'exe'
   gem.executables   = gem.files.grep(%r{^bin/}) { |f| File.basename(f) }
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = %w{lib}
   gem.version       = MoteSMS::VERSION
 
-  gem.required_ruby_version = '>= 1.9'
+  gem.required_ruby_version = '>= 2.0'
 
   gem.add_dependency 'phony', ['>= 1.7', '< 3.0']
 

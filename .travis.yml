@@ -1,12 +1,12 @@
 language: ruby
 rvm:
+  - jruby-9.0.4.0
   - 2.1.7
   - 2.3.0
 
 gemfile:
   - Gemfile
   - gemfiles/phony1.7.gemfile
-  - gemfiles/rails5.0.gemfile
 
 before_install:
   - gem install bundler

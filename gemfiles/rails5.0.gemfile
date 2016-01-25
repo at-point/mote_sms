@@ -1,6 +1,0 @@
-source "http://rubygems.org"
-
-gem 'actionmailer', '5.0.0.beta1'
-gem 'activejob', '5.0.0.beta1'
-
-gemspec path: "../"
