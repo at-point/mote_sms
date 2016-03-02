@@ -76,7 +76,7 @@ module MoteSMS
     # options - The Hash with additional URL params passed to mobile techics endpoint
     #
     # Returns a new instance.
-    def initialize(endpoint, api_key, from_number, options = {})
+    def initialize(endpoint, api_key, from_number = nil, options = {})
       @endpoint = URI.parse(endpoint)
       @api_key = api_key
       @from_number = from_number
@@ -104,7 +104,7 @@ module MoteSMS
       resp = http.request(request)
 
       # Handle errors
-      raise ServiceError, "endpoint did respond with #{resp.code} and #{resp.body}" unless resp.code.to_i == 200
+      raise ServiceError, "endpoint did respond with #{resp.code} and #{resp.body}" unless resp.code.to_i == 201
       self.class.logger.debug resp.body
     end
 
@@ -117,7 +117,7 @@ module MoteSMS
     #
     # Returns Net::HTTP::Post instance.
     def http_request(params)
-      Net::HTTP::Post.new("/v1/messaging/sms/outbound/tel:#{from_number}/requests").tap do |request|
+      Net::HTTP::Post.new("/messaging/v1/sms").tap do |request|
         request.body = params.to_json
         request.content_type = 'application/json; charset=utf-8'
         request['Accept'] = 'application/json; charset=utf-8'
@@ -175,12 +175,8 @@ module MoteSMS
     # Returns Array with params.
     def post_params(message, options)
       {
-        outboundSMSMessageRequest: {
-          senderAddress: "tel:#{from_number}",
-          address: prepare_numbers(message.to),
-          outboundSMSTextMessage: { message: message.body },
-          clientCorrelator: options[:messageid]
-        }.compact
+        to: prepare_numbers(message.to),
+        text: message.body
       }
     end
 
@@ -191,7 +187,7 @@ module MoteSMS
     #
     # Returns String with numbers separated by ;.
     def prepare_numbers(number_list)
-      number_list.normalized_numbers.map { |n| 'tel:' + Phony.formatted(n, format: :international_absolute, spaces: '') }
+      number_list.normalized_numbers.map { |n| Phony.formatted(n, format: :international_absolute, spaces: '') }.first
     end
   end
 end
