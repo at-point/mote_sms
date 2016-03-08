@@ -45,7 +45,9 @@ module MoteSMS
           http.verify_mode = OpenSSL::SSL::VERIFY_PEER
           http.verify_depth = 9
           http.cert_store = self.default_cert_store
-        }
+        },
+        proxy_address: nil,
+        proxy_port: nil
       }
     end
 
@@ -131,7 +133,7 @@ module MoteSMS
     #
     # Returns Net::HTTP client instance.
     def http_client(options)
-      Net::HTTP.new(endpoint.host, endpoint.port).tap do |http|
+      Net::HTTP.new(endpoint.host, endpoint.port, options[:proxy_address].presence, options[:proxy_port].presence).tap do |http|
         if endpoint.instance_of?(URI::HTTPS)
           cert = self.class.fingerprint_cert(endpoint.host)
           http.use_ssl = true
