@@ -1,6 +1,10 @@
+sudo: false
 language: ruby
 rvm:
-  - jruby-19mode
-  - rbx-19mode
+  - jruby-9.0.5.0
   - 1.9.3
   - 2.0.0
+  - 2.3.0
+
+before_script:
+  - gem update --system
