@@ -16,9 +16,6 @@ matrix:
     - rvm: 2.1.7
       gemfile: gemfiles/rails5.0.gemfile
 
-before_install:
-  - gem install bundler
-
 script: ./bin/rspec spec
 
 sudo: false
