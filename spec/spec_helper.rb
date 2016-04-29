@@ -13,4 +13,7 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
+  config.before(http: true) { WebMock.disable! }
+  config.after { WebMock.enable! }
 end
