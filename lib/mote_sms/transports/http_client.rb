@@ -1,5 +1,7 @@
-require 'digest/sha1'
+require 'uri'
 require 'net/https'
+require 'digest/sha1'
+
 require 'active_support/security_utils'
 require 'mote_sms/version'
 
@@ -42,7 +44,7 @@ module Transports
       @proxy_address = proxy_address
       @proxy_port = proxy_port
       @user_agent = user_agent
-      @ssl = ssl
+      @ssl = ssl || self.class.ssl_options
       if enable_fingerprint
         @fingerprint = ENV.fetch(
           "MOTE_SMS_#{@endpoint.host.to_s.upcase.gsub(/[\.-]/, '_')}_FINGERPRINT",

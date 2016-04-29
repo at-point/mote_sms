@@ -117,7 +117,7 @@ module MoteSMS
     #
     # Returns Array with params.
     def post_params(message, options)
-      params = options.reject { |key, v| key == :ssl }
+      params = options.reject { |key, v| [:proxy_address, :proxy_port, :ssl].include?(key) }
       params.merge! username: self.username,
                     password: self.password,
                     origin: message.from ? message.from.to_number : params[:origin],

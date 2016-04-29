@@ -1,9 +1,7 @@
-require 'uri'
-require 'net/http'
 require 'phony'
 require 'logger'
 
-require 'mote_sms/transports/concerns/ssl_transport'
+require 'mote_sms/transports/http_client'
 
 module MoteSMS
 
@@ -18,8 +16,6 @@ module MoteSMS
   #    # => ['000-791234', '001-7987324']
   #
   class SwisscomTransport
-    include SslTransport
-
     # Maximum recipients allowed by API
     MAX_RECIPIENT = 100
 
@@ -27,29 +23,6 @@ module MoteSMS
     ServiceError = Class.new(::Exception)
 
     # Readable attributes
-    attr_reader :endpoint, :api_key, :from_number, :options
-
-    # Public: Global default parameters for sending messages, Procs/lambdas
-    # are evaluated on #deliver. Ensure to use only symbols as keys. Contains
-    # `allow_adaption: true` as default.
-    #
-    # Examples:
-    #
-    #    MoteSMS::MobileTechnicsTransports.defaults[:messageid] = ->(msg) { "#{msg.from}-#{SecureRandom.hex}" }
-    #
-    # Returns Hash with options.
-    def self.defaults
-      @@options ||= {
-        allow_adaption: true,
-        ssl: ->(http) {
-          http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-          http.verify_depth = 9
-          http.cert_store = self.default_cert_store
-        },
-        proxy_address: nil,
-        proxy_port: nil
-      }
-    end
 
     # Public: Logger used to log HTTP requests to mobile
     # technics API endpoint.
@@ -69,6 +42,8 @@ module MoteSMS
       @@logger = logger
     end
 
+    attr_reader :endpoint, :api_key, :from_number, :options, :http_client
+
     # Public: Create a new instance using specified endpoint, api_key
     # and password.
     #
@@ -83,6 +58,11 @@ module MoteSMS
       @api_key = api_key
       @from_number = from_number
       @options = options
+
+      @http_client = Transports::HttpClient.new(endpoint,
+        proxy_address: options[:proxy_address],
+        proxy_port: options[:proxy_port],
+        ssl: options[:ssl])
     end
 
     # Public: Delivers message using mobile technics HTTP/S API.
@@ -95,9 +75,12 @@ module MoteSMS
       raise ArgumentError, "too many recipients, max. is #{MAX_RECIPIENT} (current: #{message.to.length})" if message.to.length > MAX_RECIPIENT
 
       # Prepare request
-      options = prepare_options options
-      http = http_client options
-      request = http_request post_params(message, options)
+      request = Net::HTTP::Post.new("/messaging/v1/sms").tap do |request|
+        request.body = post_params(message)
+        request.content_type = 'application/json; charset=utf-8'
+        request['Accept'] = 'application/json; charset=utf-8'
+        request['client_id'] = api_key
+      end
 
       # Log as `curl` request
       self.class.logger.debug "curl -X#{request.method} '#{endpoint}' -d '#{request.body}'"
@@ -112,82 +95,10 @@ module MoteSMS
 
     private
 
-    # Internal: Prepare request including body, headers etc.
-    #
-    # uri - The URI from the endpoint.
-    # params - The Array wifromth the attributes.
-    #
-    # Returns Net::HTTP::Post instance.
-    def http_request(params)
-      Net::HTTP::Post.new("/messaging/v1/sms").tap do |request|
-        request.body = params.to_json
-        request.content_type = 'application/json; charset=utf-8'
-        request['Accept'] = 'application/json; charset=utf-8'
-        request['client_id'] = api_key
-      end
+    def post_params(message)
+      { to: prepare_numbers(message.to), text: message.body }
     end
 
-    # Internal: Build new Net::HTTP instance, enables SSL if requested.
-    #
-    # options - The Hash with all options
-    #
-    # Returns Net::HTTP client instance.
-    def http_client(options)
-      Net::HTTP.new(endpoint.host, endpoint.port, options[:proxy_address].presence, options[:proxy_port].presence).tap do |http|
-        if endpoint.instance_of?(URI::HTTPS)
-          cert = self.class.fingerprint_cert(endpoint.host)
-          http.use_ssl = true
-          http.verify_callback = ->(ok, store) { verify_fingerprint(cert.serial, ok, store) } if cert
-          options[:ssl].call(http) if options[:ssl].respond_to?(:call)
-        end
-      end
-    end
-
-    # Public: Verify SSL server certifcate when a certificate is available in
-    # mote_sms/ssl_certs/{host}.pem. Implemented to return false if first
-    # certificate in chain does not match the expected serial.
-    #
-    # serial - The expected server certificates serial
-    # ok - The Boolean forwarded by verify_callback
-    # store - The OpenSSL::X509::Store instance with the chain
-    #
-    # Returns Boolean
-    def verify_fingerprint(serial, ok, store)
-      return false unless store.chain.first.serial == serial
-      ok
-    end
-
-    # Internal: Merge defaults from class and instance with options
-    # supplied to #deliver. Removes `:http` options, because those
-    # are only for the HTTP client to set ssl verify mode et all.
-    #
-    # options - The Hash to merge with #defaults and #options.
-    #
-    # Returns Hash.
-    def prepare_options(options)
-      options = self.class.defaults.merge(self.options).merge(options)
-    end
-
-    # Internal: Prepare parameters for sending POST to endpoint, merges defaults,
-    # local and per call options, adds message related informations etc etc.
-    #
-    # message - The MoteSMS::Message to create the POST body for.
-    # options - The Hash with additional, per delivery options.
-    #
-    # Returns Array with params.
-    def post_params(message, options)
-      {
-        to: prepare_numbers(message.to),
-        text: message.body
-      }
-    end
-
-    # Internal: Convert NumberList instance to ; separated string with international
-    # relative formatted numbers. Formatting is done using phony.
-    #
-    # number_list - The NumberList instance.
-    #
-    # Returns String with numbers separated by ;.
     def prepare_numbers(number_list)
       number_list.normalized_numbers.map { |n| Phony.formatted(n, format: :international_absolute, spaces: '') }.first
     end
