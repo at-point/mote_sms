@@ -17,7 +17,7 @@ module MoteSMS
   #
   class SwisscomTransport
     # Maximum recipients allowed by API
-    MAX_RECIPIENT = 100
+    MAX_RECIPIENT = 1
 
     # Custom exception subclass.
     ServiceError = Class.new(::Exception)
