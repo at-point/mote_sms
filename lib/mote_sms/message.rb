@@ -1,5 +1,6 @@
 require 'mote_sms/number'
 require 'mote_sms/number_list'
+require 'mote_sms/delivery_job'
 
 module MoteSMS
 

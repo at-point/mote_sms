@@ -1,5 +1,5 @@
 require 'spec_helper'
-require 'mote_sms'
+require 'mote_sms/delivery_job'
 
 describe MoteSMS::DeliveryJob do
   subject { described_class.new }
