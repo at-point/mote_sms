@@ -1,13 +1,8 @@
+require 'mote_sms/message'
 require 'mote_sms/transports'
+require 'mote_sms/version'
 
 module MoteSMS
-  autoload :Number,      'mote_sms/number'
-  autoload :NumberList,  'mote_sms/number_list'
-  autoload :Message,     'mote_sms/message'
-  autoload :DeliveryJob, 'mote_sms/delivery_job'
-
-  autoload :VERSION,    'mote_sms/version'
-
   # No default transport.
   @@transport = nil
   @@delayed_delivery_queue = :default
