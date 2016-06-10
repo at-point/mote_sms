@@ -33,6 +33,9 @@ end
 sms.deliver_now # OR: deliver_later
 ```
 
+## TwilioTransport
+Include the gem 'twilio-ruby in your Gemfile'
+
 ## Contributing
 
 1. Fork it
