@@ -2,15 +2,18 @@ require 'phony'
 require 'logger'
 
 module MoteSMS
-  # MoteSMS::MobileTechnicsTransport provides the implementation to
-  # send messages using nth.ch bulk SMS HTTP/S API. Each customer has
-  # custom endpoint (with port) and username/password.
+  # MoteSMS::TwilioTransport provides the implementation to
+  # send messages using the Twilio Api https://github.com/twilio/twilio-ruby
   #
   # Examples:
   #
-  #    transport = MoteSMS::TwilioTransport.new 'my sid', 'api token', '+my phone number'
-  #    transport.deliver message
-  #    # => ['000-791234', '001-7987324']
+  #    MoteSMS.transport = MoteSMS::TwilioTransport.new 'sid', 'token', 'from_number'
+  #    sms = MoteSMS::Message.new do
+  #      to 'to_number'
+  #      body 'my cool text'
+  #    end
+  #    sms.deliver_now
+  #    # => <Twilio::REST::Message>
   #
   class TwilioTransport
     # Maximum recipients allowed by API
@@ -19,20 +22,18 @@ module MoteSMS
     # Custom exception subclass.
     ServiceError = Class.new(::Exception)
 
-    attr_reader :from_number, :options
+    attr_reader :from_number
 
     # Public: Create a new instance using specified endpoint, api_key
     # and password.
     #
-    # endpoint - The swisscom base url of the API
-    # api_key - The String with the API key.
-    # from_number - The phone number to send from (mandatory @ swisscom)
-    # options - The Hash with additional URL params passed to mobile techics endpoint
+    # account_sid - The twilio account sid
+    # auth_token - The twilio api token
+    # from_number - The phone number to send from (mandatory on initialize or send message)
     #
     # Returns a new instance.
-    def initialize(account_sid, auth_token, from_number = nil, options = {})
+    def initialize(account_sid, auth_token, from_number = nil)
       @from_number = from_number
-      @options = options
 
       @client = Twilio::REST::Client.new account_sid, auth_token
     end
