@@ -1,5 +1,6 @@
 require 'phony'
 require 'logger'
+require 'twilio-ruby'
 
 module MoteSMS
   # MoteSMS::TwilioTransport provides the implementation to
@@ -22,7 +23,7 @@ module MoteSMS
     # Custom exception subclass.
     ServiceError = Class.new(::Exception)
 
-    attr_reader :from_number
+    attr_reader :from_number, :client
 
     # Public: Create a new instance using specified endpoint, api_key
     # and password.
@@ -47,23 +48,29 @@ module MoteSMS
     def deliver(message, options = {})
       raise ArgumentError, "too many recipients, max. is #{MAX_RECIPIENT}" if message.to.length > MAX_RECIPIENT
 
-      from = message.from.present? ? message.from : @from_number
+      from = message.from.present? ? message.from.to_s : from_number
 
       raise ArgumentError, 'no from number given on new message or the transport given' if from.empty?
 
       from = Phony.format(Phony.normalize(from), format: :international_absolute, spaces: '')
 
-      @client.messages.create(
-        from: from,
-        to: prepare_number(message.to),
-        body: message.body
-      )
+      prepare_numbers(message.to).map { |n|
+        @client.messages.create(
+          from: from,
+          to: n,
+          body: message.body
+        )
+      }.map { |result|
+        result.try(:to)
+      }.compact
     end
 
     private
 
-    def prepare_number(number_list)
-      Phony.format(Phony.normalize(number_list.normalized_numbers.first), format: :international_absolute, spaces: '')
+    def prepare_numbers(number_list)
+      number_list.normalized_numbers.map { |n|
+        Phony.format(Phony.normalize(n), format: :international_absolute, spaces: '')
+      }
     end
   end
 end
