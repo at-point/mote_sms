@@ -51,12 +51,12 @@ describe MoteSMS::MobileTechnicsTransport do
 
     it 'raises exception if required parameter is missing' do
       stub_request(:post, endpoint).to_return(body: 'Result_code: 02, call-number')
-      expect { subject.deliver message }.to raise_error(MoteSMS::MobileTechnicsTransport::ServiceError)
+      expect { subject.deliver message }.to raise_error(described_class::ServiceError)
     end
 
     it 'raises exception if status code is not 200' do
       stub_request(:post, endpoint).to_return(status: 500)
-      expect { subject.deliver message }.to raise_error(MoteSMS::MobileTechnicsTransport::ServiceError)
+      expect { subject.deliver message }.to raise_error(described_class::ServiceError)
     end
 
     it 'returns message id' do

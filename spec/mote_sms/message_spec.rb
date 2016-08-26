@@ -87,8 +87,8 @@ describe MoteSMS::Message do
 
     it "can not override per message transport using :transport option and it deprecates it" do
       expect(Kernel).to receive(:warn).with('options[:transport] is not supported in Message#deliveer_later')
-      expect(MoteSMS::DeliveryJob).to_not receive(:perform_later)
       subject.deliver_later transport: double(deliver: true)
+      expect(ActiveJob::Base.queue_adapter.enqueued_jobs.size).to eq 1
     end
 
     it "queues the delivery in the DeliveryJob" do

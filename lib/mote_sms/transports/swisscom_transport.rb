@@ -1,5 +1,6 @@
 require 'phony'
 require 'logger'
+require 'json'
 
 require 'mote_sms/transports/http_client'
 
@@ -72,7 +73,7 @@ module MoteSMS
     #
     # Returns Array with sender ids.
     def deliver(message, options = {})
-      raise ArgumentError, "too many recipients, max. is #{MAX_RECIPIENT} (current: #{message.to.length})" if message.to.length > MAX_RECIPIENT
+      raise ServiceError, "too many recipients, max. is #{MAX_RECIPIENT} (current: #{message.to.length})" if message.to.length > MAX_RECIPIENT
 
       # Prepare request
       request = Net::HTTP::Post.new("/messaging/v1/sms").tap do |request|
@@ -86,17 +87,20 @@ module MoteSMS
       self.class.logger.debug "curl -X#{request.method} '#{endpoint}' -d '#{request.body}'"
 
       # Perform request
-      resp = http.request(request)
+      resp = http_client.request(request)
 
       # Handle errors
       raise ServiceError, "endpoint did respond with #{resp.code} and #{resp.body}" unless resp.code.to_i == 201
       self.class.logger.debug resp.body
+
+      # Return true
+      true
     end
 
     private
 
     def post_params(message)
-      { to: prepare_numbers(message.to), text: message.body }
+      { to: prepare_numbers(message.to), text: message.body }.to_json
     end
 
     def prepare_numbers(number_list)
