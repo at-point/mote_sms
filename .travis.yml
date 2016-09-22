@@ -1,20 +1,10 @@
 language: ruby
 rvm:
-  - jruby-9.0.4.0
-  - 2.1.7
+  - jruby-9.1.5.0
   - 2.3.0
 
 gemfile:
   - Gemfile
-  - gemfiles/phony1.7.gemfile
-  - gemfiles/rails5.0.gemfile
-
-matrix:
-  exclude:
-    - rvm: jruby-9.0.4.0
-      gemfile: gemfiles/rails5.0.gemfile
-    - rvm: 2.1.7
-      gemfile: gemfiles/rails5.0.gemfile
 
 script: ./bin/rspec spec
 
