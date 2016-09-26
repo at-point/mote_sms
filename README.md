@@ -33,6 +33,14 @@ end
 sms.deliver_now # OR: deliver_later
 ```
 
+## TwilioTransport
+Include the gem 'twilio-ruby in your Gemfile'
+
+```ruby
+# Transport configuration
+MoteSMS.transport = MoteSMS::TwilioTransport.new 'twilio sid', 'twilio token', 'from number'
+```
+
 ## Contributing
 
 1. Fork it
