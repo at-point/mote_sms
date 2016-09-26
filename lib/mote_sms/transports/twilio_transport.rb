@@ -54,23 +54,25 @@ module MoteSMS
 
       from = Phony.format(Phony.normalize(from), format: :international_absolute, spaces: '')
 
-      prepare_numbers(message.to).map { |n|
+      messages = prepare_numbers(message.to).map do |n|
         @client.messages.create(
           from: from,
           to: n,
           body: message.body
         )
-      }.map { |result|
+      end
+      numbers = messages.map do |result|
         result.try(:to)
-      }.compact
+      end
+      NumberList.new.push numbers.compact
     end
 
     private
 
     def prepare_numbers(number_list)
-      number_list.normalized_numbers.map { |n|
+      number_list.normalized_numbers.map do |n|
         Phony.format(Phony.normalize(n), format: :international_absolute, spaces: '')
-      }
+      end
     end
   end
 end

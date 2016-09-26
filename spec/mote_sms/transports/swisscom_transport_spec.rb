@@ -36,7 +36,7 @@ describe MoteSMS::SwisscomTransport do
         expect(params['text']).to eq 'Hello World, with äöü.'
         expect(params['to']).to eq '+41791231212'
       end.to_return(success)
-      subject.deliver message
+      expect(subject.deliver(message).normalized_numbers).to eq(['41791231212'])
     end
 
     it 'raises error when trying to send to multiple recipients' do

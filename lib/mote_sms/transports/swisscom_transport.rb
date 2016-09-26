@@ -93,8 +93,8 @@ module MoteSMS
       raise ServiceError, "endpoint did respond with #{resp.code} and #{resp.body}" unless resp.code.to_i == 201
       self.class.logger.debug resp.body
 
-      # Return true
-      true
+      # Return numbers message send to
+      message.to
     end
 
     private

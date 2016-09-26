@@ -36,7 +36,7 @@ describe MoteSMS::TwilioTransport do
         body: 'Hello World'
       ).at_least(:once) { result }
 
-      expect(subject.deliver(message)).to eq(['41790001122'])
+      expect(subject.deliver(message).normalized_numbers).to eq(['41790001122'])
     end
 
     it 'uses the number from the message' do
@@ -47,7 +47,7 @@ describe MoteSMS::TwilioTransport do
         body: 'Hello World'
       ).at_least(:once) { result }
 
-      expect(subject.deliver(message)).to eq(['41790001122'])
+      expect(subject.deliver(message).normalized_numbers).to eq(['41790001122'])
     end
   end
 end

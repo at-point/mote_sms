@@ -105,6 +105,8 @@ module MoteSMS
       raise ServiceError, "unable to deliver message to all recipients (CAUSE: #{resp.body.strip})" unless resp.body.split("\n").all? { |l| l =~ /Result_code: 00/ }
 
       resp['X-Nth-SmsId'].split(',')
+
+      message.to
     end
 
     private
