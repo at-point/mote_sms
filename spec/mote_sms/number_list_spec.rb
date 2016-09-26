@@ -3,7 +3,7 @@ require 'mote_sms/number_list'
 
 describe MoteSMS::NumberList do
   it 'has length' do
-    expect(subject.length).to be.zero?
+    expect(subject.length).to be == 0
     subject << '+41 79 111 22 33'
     expect(subject.length).to be == 1
     5.times { subject << '+41 79 222 33 44' }
