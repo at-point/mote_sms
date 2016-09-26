@@ -74,14 +74,14 @@ module MoteSMS
     #
     # Returns nothing.
     def to=(*args)
-      @to = MoteSMS::NumberList.new.concat(args)
+      @to = MoteSMS::NumberList.new.push(args)
     end
 
     # Public: Returns NumberList for this message.
     #
     # Returns NumberList instance.
     def to(*numbers)
-      @to.concat(numbers) unless numbers.empty?
+      @to.push(numbers) unless numbers.empty?
       @to
     end
 
