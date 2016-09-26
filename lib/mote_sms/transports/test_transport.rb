@@ -1,5 +1,4 @@
 module MoteSMS
-
   # Public: Provide access to global array of delivered
   # messages, this can be used in testing to assert sent
   # SMS messages, test their contents, recipients etc.
@@ -26,14 +25,13 @@ module MoteSMS
   #    end
   #
   module TestTransport
-
     # Public: Appends supplied message to global deliveries array.
     #
     # message - The MoteSMS::Message instance to deliver.
     # options - The Hash with additional, transport specific options.
     #
     # Returns nothing.
-    def self.deliver(message, options = {})
+    def self.deliver(message, _options = {})
       MoteSMS.deliveries << message
     end
   end

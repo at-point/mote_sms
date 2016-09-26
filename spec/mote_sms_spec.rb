@@ -8,21 +8,21 @@ describe MoteSMS do
     expect(subject::VERSION).to match /\d/
   end
 
-  context "transport" do
+  context 'transport' do
     before { @current_transport = subject.transport }
     after { subject.transport = @current_transport }
-    let(:transport) { double("transport") }
+    let(:transport) { double('transport') }
 
-    it "has no default transport" do
+    it 'has no default transport' do
       expect(subject.transport).to be_nil
     end
 
-    it "can change global transport" do
+    it 'can change global transport' do
       subject.transport = transport
       expect(subject.transport).to be == transport
     end
 
-    context "#deliver" do
+    context '#deliver' do
       it 'delivers quick and dirty using global transport' do
         expect(transport).to receive(:deliver).with(kind_of(MoteSMS::Message), {})
         subject.transport = transport

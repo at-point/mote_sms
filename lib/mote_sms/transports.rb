@@ -1,5 +1,4 @@
 module MoteSMS
-
   # All transports live within mote_sms/transports, though should be
   # available in ruby as `MoteSMS::<Some>Transport`.
   autoload :SslTransport, 'mote_sms/transports/concerns/ssl_transport'

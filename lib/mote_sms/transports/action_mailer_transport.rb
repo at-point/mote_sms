@@ -1,7 +1,6 @@
 require 'action_mailer'
 
 module MoteSMS
-
   # Internal: ActionMailer class to forward SMS to recipient.
   class ActionMailerSMSMailer < ::ActionMailer::Base
     def forward_sms(recipient, sms)
@@ -23,7 +22,6 @@ module MoteSMS
   #    MoteSMS.transport = MoteSMS::ActionMailerTransport.new ->(msg) { "#{msg.from}@example.com" }
   #
   class ActionMailerTransport
-
     # Public: Read/change the recipient used when delivering the message.
     # Also accepts a Proc.
     attr_accessor :recipient
@@ -40,9 +38,11 @@ module MoteSMS
     #           currently ignored.
     #
     # Returns nothing.
-    def deliver(message, options = {})
-      to = self.recipient.respond_to?(:call) ? self.recipient.call(message) : self.recipient
+    def deliver(message, _options = {})
+      to = recipient.respond_to?(:call) ? recipient.call(message) : recipient
       ActionMailerSMSMailer.forward_sms(to, message).deliver_now
+
+      message.to
     end
   end
 end

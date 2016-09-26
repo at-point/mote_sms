@@ -7,34 +7,34 @@ require 'mote_sms/transports/mobile_technics_transport'
 describe MoteSMS::MobileTechnicsTransport do
   before do
     @logger = described_class.logger
-    described_class.logger = double("logger", debug: true, info: true, error: true)
+    described_class.logger = double('logger', debug: true, info: true, error: true)
   end
 
   after do
     described_class.logger = @logger
   end
 
-  subject { described_class.new(endpoint, "example", "123456") }
+  subject { described_class.new(endpoint, 'example', '123456') }
 
-  let(:endpoint) { "http://test.nth.ch" }
-  let(:message) {
+  let(:endpoint) { 'http://test.nth.ch' }
+  let(:message) do
     MoteSMS::Message.new do
       to '0041 079 123 12 12'
       from 'SENDER'
       body 'Hello World, with äöü.'
     end
-  }
+  end
 
-  let(:success) {
-    { body: "Result_code: 00, Message OK", status: 200, headers: { 'X-Nth-SmsId' => '43797917' } }
-  }
+  let(:success) do
+    { body: 'Result_code: 00, Message OK', status: 200, headers: { 'X-Nth-SmsId' => '43797917' } }
+  end
 
-  context "#deliver" do
-    it "sends POST to endpoint with URL encoded body" do
+  context '#deliver' do
+    it 'sends POST to endpoint with URL encoded body' do
       stub_request(:post, endpoint).with do |req|
         params = CGI.parse(req.body)
-        expect(params['username']).to be == %w{example}
-        expect(params['password']).to be == %w{123456}
+        expect(params['username']).to be == %w(example)
+        expect(params['password']).to be == %w(123456)
         expect(params['text']).to be == ['Hello World, with äöü.']
         expect(params['call-number']).to be == ['0041791231212']
       end.to_return(success)
@@ -59,9 +59,9 @@ describe MoteSMS::MobileTechnicsTransport do
       expect { subject.deliver message }.to raise_error(described_class::ServiceError)
     end
 
-    it 'returns message id' do
+    it 'returns message delivered numbers' do
       stub_request(:post, endpoint).to_return(success)
-      expect(subject.deliver(message)).to be == %w{43797917}
+      expect(subject.deliver(message).normalized_numbers).to eq(['41791231212'])
     end
 
     it 'logs curl compatible output' do
@@ -74,7 +74,7 @@ describe MoteSMS::MobileTechnicsTransport do
     end
   end
 
-  context "#options" do
+  context '#options' do
     it 'can be passed in as last item in the constructor' do
       transport = described_class.new endpoint, 'user', 'pass', allow_adaption: false, validity: 30
       expect(transport.options[:allow_adaption]).to be_falsey
@@ -83,8 +83,8 @@ describe MoteSMS::MobileTechnicsTransport do
     end
 
     it 'should be exposed as hash' do
-      subject.options[:messageid] = "test"
-      expect(subject.options[:messageid]).to be == "test"
+      subject.options[:messageid] = 'test'
+      expect(subject.options[:messageid]).to be == 'test'
     end
 
     it 'overrides settings from #defaults' do
@@ -103,7 +103,7 @@ describe MoteSMS::MobileTechnicsTransport do
     end
 
     it 'evaluates Procs & lambdas' do
-      subject.options[:messageid] = Proc.new { "test" }
+      subject.options[:messageid] = proc { 'test' }
 
       stub_request(:post, endpoint).with(body: hash_including('messageid' => 'test')).to_return(success)
       subject.deliver message

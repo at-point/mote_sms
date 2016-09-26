@@ -12,11 +12,11 @@ module Transports
     CERTS_PATH = File.expand_path File.join(File.dirname(__FILE__), '..', 'ssl_certs')
 
     def self.ssl_options
-      @ssl_options ||= ->(http) {
+      @ssl_options ||= lambda do |http|
         http.verify_mode = OpenSSL::SSL::VERIFY_PEER
         http.verify_depth = 9
-        http.cert_store = self.default_cert_store
-      }
+        http.cert_store = default_cert_store
+      end
     end
 
     def self.default_cert_store
@@ -48,7 +48,8 @@ module Transports
       if enable_fingerprint
         @fingerprint = ENV.fetch(
           "MOTE_SMS_#{@endpoint.host.to_s.upcase.gsub(/[\.-]/, '_')}_FINGERPRINT",
-          self.class.fingerprint_host(@endpoint.host))
+          self.class.fingerprint_host(@endpoint.host)
+        )
       end
     end
 
@@ -79,7 +80,8 @@ module Transports
 
       logger.error(
         format('[Transports::HttpClient] failed to verify %s fingerprint (ACTUAL: %s, EXPECTED: %s)',
-               endpoint, digest, fingerprint))
+               endpoint, digest, fingerprint)
+      )
       false
     end
 

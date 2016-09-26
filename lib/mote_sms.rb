@@ -6,7 +6,7 @@ module MoteSMS
   autoload :Message,     'mote_sms/message'
   autoload :DeliveryJob, 'mote_sms/delivery_job'
 
-  autoload :VERSION,    'mote_sms/version'
+  autoload :VERSION, 'mote_sms/version'
 
   # No default transport.
   @@transport = nil

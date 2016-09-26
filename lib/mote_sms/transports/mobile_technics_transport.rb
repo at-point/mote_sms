@@ -6,7 +6,6 @@ require 'logger'
 require 'mote_sms/transports/http_client'
 
 module MoteSMS
-
   # MoteSMS::MobileTechnicsTransport provides the implementation to
   # send messages using nth.ch bulk SMS HTTP/S API. Each customer has
   # custom endpoint (with port) and username/password.
@@ -56,8 +55,8 @@ module MoteSMS
     # logger - The Logger instance, should at least respond to #debug, #error.
     #
     # Returns nothing.
-    def self.logger=(logger)
-      @logger = logger
+    class << self
+      attr_writer :logger
     end
 
     # Public: Create a new instance using specified endpoint, username
@@ -78,9 +77,9 @@ module MoteSMS
       @options = self.class.defaults.merge(options)
 
       @http_client = Transports::HttpClient.new(endpoint,
-        proxy_address: @options[:proxy_address],
-        proxy_port: @options[:proxy_port],
-        ssl: @options[:ssl])
+                                                proxy_address: @options[:proxy_address],
+                                                proxy_port: @options[:proxy_port],
+                                                ssl: @options[:ssl])
     end
 
     # Public: Delivers message using mobile technics HTTP/S API.
@@ -105,6 +104,8 @@ module MoteSMS
       raise ServiceError, "unable to deliver message to all recipients (CAUSE: #{resp.body.strip})" unless resp.body.split("\n").all? { |l| l =~ /Result_code: 00/ }
 
       resp['X-Nth-SmsId'].split(',')
+
+      message.to
     end
 
     private
@@ -117,9 +118,9 @@ module MoteSMS
     #
     # Returns Array with params.
     def post_params(message, options)
-      params = options.reject { |key, v| [:proxy_address, :proxy_port, :ssl].include?(key) }
-      params.merge! username: self.username,
-                    password: self.password,
+      params = options.reject { |key, _v| [:proxy_address, :proxy_port, :ssl].include?(key) }
+      params.merge! username: username,
+                    password: password,
                     origin: message.from ? message.from.to_number : params[:origin],
                     text: message.body,
                     :'call-number' => prepare_numbers(message.to)

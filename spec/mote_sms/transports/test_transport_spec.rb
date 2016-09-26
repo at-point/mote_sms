@@ -10,8 +10,8 @@ describe MoteSMS::TestTransport do
   end
 
   it 'appends deliveries' do
-    subject.deliver "firstMessage"
-    subject.deliver "secondMessage"
-    expect(MoteSMS.deliveries).to be == %w{firstMessage secondMessage}
+    subject.deliver 'firstMessage'
+    subject.deliver 'secondMessage'
+    expect(MoteSMS.deliveries).to be == %w(firstMessage secondMessage)
   end
 end
