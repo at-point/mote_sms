@@ -2,13 +2,11 @@ require 'mote_sms/number'
 require 'mote_sms/number_list'
 
 module MoteSMS
-
   # Represents an SMS message, currently only provides the
   # tools to build new messages, not parse incoming messages or
   # similar stuff.
   #
   class Message
-
     # The transport instance to use, if not defined
     # falls back to use global MoteSMS.transport instance.
     attr_accessor :transport
@@ -76,14 +74,14 @@ module MoteSMS
     #
     # Returns nothing.
     def to=(*args)
-      @to = MoteSMS::NumberList.new.push(*args)
+      @to = MoteSMS::NumberList.new.concat(args)
     end
 
     # Public: Returns NumberList for this message.
     #
     # Returns NumberList instance.
     def to(*numbers)
-      @to.push(*numbers) unless numbers.empty?
+      @to.concat(numbers) unless numbers.empty?
       @to
     end
 

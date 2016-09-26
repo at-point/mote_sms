@@ -1,7 +1,6 @@
 require 'mote_sms/number'
 
 module MoteSMS
-
   # List of Number instances, which transparantly is able to add
   # new Number instances from strings, or whatever.
   #
@@ -16,7 +15,6 @@ module MoteSMS
   #    # => ['41791231212', '41441231212', '08001231212']
   #
   class NumberList
-
     # Load ruby enumerable support.
     include ::Enumerable
 
@@ -32,13 +30,13 @@ module MoteSMS
     def length
       numbers.length
     end
-    alias :size :length
+    alias size length
 
     # Public: Conform to arrayish behavior.
     def empty?
       numbers.empty?
     end
-    alias :blank? :empty?
+    alias blank? empty?
 
     # Public: Add number to internal list, use duck typing to detect if
     # it appears to be a number instance or not. So everything which does
@@ -48,7 +46,7 @@ module MoteSMS
     #
     # Returns nothing.
     def <<(number)
-      self.push(number)
+      push(number)
     end
 
     # Public: Add multiple numbers, with optional options hash which can

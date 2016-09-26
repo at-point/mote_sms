@@ -5,7 +5,6 @@ require 'json'
 require 'mote_sms/transports/http_client'
 
 module MoteSMS
-
   # MoteSMS::MobileTechnicsTransport provides the implementation to
   # send messages using nth.ch bulk SMS HTTP/S API. Each customer has
   # custom endpoint (with port) and username/password.
@@ -61,9 +60,9 @@ module MoteSMS
       @options = options
 
       @http_client = Transports::HttpClient.new(endpoint,
-        proxy_address: options[:proxy_address],
-        proxy_port: options[:proxy_port],
-        ssl: options[:ssl])
+                                                proxy_address: options[:proxy_address],
+                                                proxy_port: options[:proxy_port],
+                                                ssl: options[:ssl])
     end
 
     # Public: Delivers message using mobile technics HTTP/S API.
@@ -72,11 +71,11 @@ module MoteSMS
     # options - The Hash with service specific options.
     #
     # Returns Array with sender ids.
-    def deliver(message, options = {})
+    def deliver(message, _options = {})
       raise ServiceError, "too many recipients, max. is #{MAX_RECIPIENT} (current: #{message.to.length})" if message.to.length > MAX_RECIPIENT
 
       # Prepare request
-      request = Net::HTTP::Post.new("/messaging/v1/sms").tap do |request|
+      request = Net::HTTP::Post.new('/messaging/v1/sms').tap do |request|
         request.body = post_params(message)
         request.content_type = 'application/json; charset=utf-8'
         request['Accept'] = 'application/json; charset=utf-8'

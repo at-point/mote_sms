@@ -45,7 +45,7 @@ module MoteSMS
     # options - The Hash with service specific options.
     #
     # Returns Array with sender ids.
-    def deliver(message, options = {})
+    def deliver(message, _options = {})
       raise ArgumentError, "too many recipients, max. is #{MAX_RECIPIENT}" if message.to.length > MAX_RECIPIENT
 
       from = message.from.present? ? message.from.to_s : from_number

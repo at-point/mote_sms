@@ -7,30 +7,30 @@ require 'mote_sms/transports/swisscom_transport'
 describe MoteSMS::SwisscomTransport do
   before do
     @logger = described_class.logger
-    described_class.logger = double("logger", debug: true, info: true, error: true)
+    described_class.logger = double('logger', debug: true, info: true, error: true)
   end
 
   after do
     described_class.logger = @logger
   end
 
-  subject { described_class.new(endpoint, "example", "123456") }
+  subject { described_class.new(endpoint, 'example', '123456') }
 
   let(:endpoint) { 'https://api.example.com' }
-  let(:message) {
+  let(:message) do
     MoteSMS::Message.new do
       to '0041 079 123 12 12'
       from 'SENDER'
       body 'Hello World, with äöü.'
     end
-  }
+  end
 
-  let(:success) {
-    { body: "OK", status: 201 }
-  }
+  let(:success) do
+    { body: 'OK', status: 201 }
+  end
 
-  context "#deliver" do
-    it "sends POST to endpoint with JSON body and Client ID" do
+  context '#deliver' do
+    it 'sends POST to endpoint with JSON body and Client ID' do
       stub_request(:post, "#{endpoint}/messaging/v1/sms").with do |req|
         params = JSON.load(req.body)
         expect(params['text']).to eq 'Hello World, with äöü.'
