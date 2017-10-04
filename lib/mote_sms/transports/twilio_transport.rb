@@ -48,11 +48,9 @@ module MoteSMS
     def deliver(message, _options = {})
       raise ArgumentError, "too many recipients, max. is #{MAX_RECIPIENT}" if message.to.length > MAX_RECIPIENT
 
-      from = message.from.present? ? message.from.to_s : from_number
+      from = message.from.present? ? message.from.to_s : from_number.to_s
 
       raise ArgumentError, 'no from number given on new message or the transport given' if from.empty?
-
-      from = Phony.format(Phony.normalize(from), format: :international_absolute, spaces: '')
 
       messages = prepare_numbers(message.to).map do |n|
         @client.messages.create(
