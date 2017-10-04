@@ -35,7 +35,7 @@ describe MoteSMS::TwilioTransport do
   context '#deliver' do
     it 'send message' do
       expect(subject.client.messages).to receive(:create).with(
-        from: '+41791110011',
+        from: '41791110011',
         to: '+41790001122',
         body: 'Hello World'
       ).at_least(:once) { result }
@@ -46,7 +46,7 @@ describe MoteSMS::TwilioTransport do
     it 'uses the number from the message' do
       message.from = '41791110033'
       expect(subject.client.messages).to receive(:create).with(
-        from: '+41791110033',
+        from: '41791110033',
         to: '+41790001122',
         body: 'Hello World'
       ).at_least(:once) { result }
