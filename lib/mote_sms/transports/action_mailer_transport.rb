@@ -3,8 +3,8 @@ require 'action_mailer'
 module MoteSMS
   # Internal: ActionMailer class to forward SMS to recipient.
   class ActionMailerSMSMailer < ::ActionMailer::Base
-    def forward_sms(recipient, sms)
-      subject = "SMS to #{sms.to.map(&:to_s).join(', ')}"
+    def forward_sms(recipient, sms, subject)
+      subject ||= "SMS to #{sms.to.map(&:to_s).join(', ')}"
       mail to: recipient, from: "#{sms.from} <#{recipient}>", subject: subject, body: sms.body
     end
   end
@@ -38,9 +38,9 @@ module MoteSMS
     #           currently ignored.
     #
     # Returns nothing.
-    def deliver(message, _options = {})
+    def deliver(message, options = {})
       to = recipient.respond_to?(:call) ? recipient.call(message) : recipient
-      ActionMailerSMSMailer.forward_sms(to, message).deliver_now
+      ActionMailerSMSMailer.forward_sms(to, message, options[:subject].presence).deliver_now
 
       message.to
     end
