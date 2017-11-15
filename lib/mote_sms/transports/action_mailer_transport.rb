@@ -24,6 +24,7 @@ module MoteSMS
   #
   class ActionMailerTransport
     # Public: Read/change the recipient used when delivering the message.
+    #         Read/change the from field used when delivering the message.
     # Also accepts a Proc.
     attr_accessor :recipient, :from
 
@@ -36,8 +37,7 @@ module MoteSMS
     # Public: Sends message using ActionMailer to recipient.
     #
     # message - The MoteSMS::Message instance to deliver.
-    # options - The Hash with additional, transport specific options,
-    #           currently ignored.
+    # options - The Hash with additional, transport specific options.
     #
     # Returns nothing.
     def deliver(message, options = {})
