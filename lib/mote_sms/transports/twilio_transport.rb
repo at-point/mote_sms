@@ -23,7 +23,7 @@ module MoteSMS
     # Custom exception subclass.
     ServiceError = Class.new(::Exception)
 
-    attr_reader :from_number, :client
+    attr_reader :from_number, :account_sid, :auth_token
 
     # Public: Create a new instance using specified endpoint, api_key
     # and password.
@@ -34,9 +34,9 @@ module MoteSMS
     #
     # Returns a new instance.
     def initialize(account_sid, auth_token, from_number = nil)
+      @account_sid = account_sid
+      @auth_token = auth_token
       @from_number = from_number
-
-      @client = Twilio::REST::Client.new account_sid, auth_token
     end
 
     # Public: Delivers message using mobile technics HTTP/S API.
@@ -52,8 +52,9 @@ module MoteSMS
 
       raise ArgumentError, 'no from number given on new message or the transport given' if from.empty?
 
+      client = Twilio::REST::Client.new(account_sid, auth_token)
       messages = prepare_numbers(message.to).map do |n|
-        @client.messages.create(
+        client.messages.create(
           from: from,
           to: n,
           body: message.body
