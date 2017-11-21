@@ -42,8 +42,8 @@ module MoteSMS
     def deliver(message, options = {})
       options = options.reverse_merge default_options
       to = recipient.respond_to?(:call) ? recipient.call(message) : recipient
+      message.body message.body.encode(options[:encoding]) if options[:encoding].presence
       ActionMailerSMSMailer.forward_sms(to, message, options[:subject].presence).deliver_now
-
       message.to
     end
   end
