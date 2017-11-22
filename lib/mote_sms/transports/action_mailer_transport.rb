@@ -3,9 +3,9 @@ require 'action_mailer'
 module MoteSMS
   # Internal: ActionMailer class to forward SMS to recipient.
   class ActionMailerSMSMailer < ::ActionMailer::Base
-    def forward_sms(recipient, sms, subject = nil)
-      subject ||= "SMS to #{sms.to.map(&:to_s).join(', ')}"
-      mail to: recipient, from: "#{sms.from} <#{recipient}>", subject: subject, body: sms.body
+    def forward_sms(recipient, sms, options = {})
+      subject = options[:subject].presence || "SMS to #{sms.to.map(&:to_s).join(', ')}"
+      mail options.merge(to: recipient, from: "#{sms.from} <#{recipient}>", subject: subject, body: sms.body)
     end
   end
 
@@ -42,8 +42,8 @@ module MoteSMS
     def deliver(message, options = {})
       options = options.reverse_merge default_options
       to = recipient.respond_to?(:call) ? recipient.call(message) : recipient
-      message.body message.body.encode(options[:encoding]) if options[:encoding].presence
-      ActionMailerSMSMailer.forward_sms(to, message, options[:subject].presence).deliver_now
+      message.body message.body.encode(options[:charset]) if options[:charset].presence
+      ActionMailerSMSMailer.forward_sms(to, message, options.compact).deliver_now
       message.to
     end
   end
