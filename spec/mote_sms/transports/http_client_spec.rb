@@ -22,8 +22,8 @@ describe Transports::HttpClient do
 
       it 'makes a "successful" request, i.e. no HTTPS issues' do
         stub_request(:get, "https://bulk.mobile-gw.com:9012/").
-          with(headers: { 'Accept': '*/*', 'Accept-Encoding': 'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'User-Agent': 'Ruby/mote_sms 1.3.11'}).
-          to_return(status: 200, body: '', headers: {})
+          with(:headers => {'Accept'=>'*/*', 'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'User-Agent'=>'Ruby/mote_sms 1.3.11'}).
+          to_return(:status => 200, :body => '', :headers => {})
         request = Net::HTTP::Get.new('/')
         response = subject.request(request)
         expect(response).to be_a Net::HTTPOK
