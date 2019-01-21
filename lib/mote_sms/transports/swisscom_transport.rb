@@ -75,11 +75,12 @@ module MoteSMS
       raise ServiceError, "too many recipients, max. is #{MAX_RECIPIENT} (current: #{message.to.length})" if message.to.length > MAX_RECIPIENT
 
       # Prepare request
-      request = Net::HTTP::Post.new('/messaging/v1/sms').tap do |request|
+      request = Net::HTTP::Post.new('/messaging/sms').tap do |request|
         request.body = post_params(message)
-        request.content_type = 'application/json; charset=utf-8'
-        request['Accept'] = 'application/json; charset=utf-8'
+        request.content_type = 'application/json'
+        request['Accept'] = 'application/json'
         request['client_id'] = api_key
+        request['SCS-Version'] = 2
       end
 
       # Log as `curl` request
