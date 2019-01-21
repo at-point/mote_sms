@@ -31,7 +31,7 @@ describe MoteSMS::SwisscomTransport do
 
   context '#deliver' do
     it 'sends POST to endpoint with JSON body and Client ID' do
-      stub_request(:post, "#{endpoint}/messaging/v1/sms").with do |req|
+      stub_request(:post, "#{endpoint}/messaging/sms").with do |req|
         params = JSON.load(req.body)
         expect(params['text']).to eq 'Hello World, with äöü.'
         expect(params['to']).to eq '+41791231212'
@@ -47,19 +47,19 @@ describe MoteSMS::SwisscomTransport do
     end
 
     it 'raises exception if status code is not 201' do
-      stub_request(:post, "#{endpoint}/messaging/v1/sms").to_return(status: 500)
+      stub_request(:post, "#{endpoint}/messaging/sms").to_return(status: 500)
       expect { subject.deliver message }.to raise_error(described_class::ServiceError)
     end
 
     it 'returns truthy on success' do
-      stub_request(:post, "#{endpoint}/messaging/v1/sms").to_return(success)
+      stub_request(:post, "#{endpoint}/messaging/sms").to_return(success)
       expect(subject.deliver(message)).to be_truthy
     end
 
     it 'logs curl compatible output' do
       io = StringIO.new
       described_class.logger = Logger.new(io)
-      stub_request(:post, "#{endpoint}/messaging/v1/sms").to_return(success)
+      stub_request(:post, "#{endpoint}/messaging/sms").to_return(success)
       subject.deliver message
       io.rewind
       expect(io.read).to include('curl -XPOST \'https://api.example.com\' -d \'{')
