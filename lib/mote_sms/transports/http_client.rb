@@ -6,6 +6,8 @@ require 'active_support/security_utils'
 require 'mote_sms/version'
 
 module Transports
+  CERTS_PATH = File.expand_path File.join(File.dirname(__FILE__), '..', 'ssl_certs')
+
   # Small abstraction on top of Net::HTTP to handle things like public key pinning
   # et all.
   class HttpClient
@@ -15,6 +17,13 @@ module Transports
         http.verify_depth = 9
         http.cert_store = OpenSSL::X509::Store.new
         http.cert_store.set_default_paths
+        Dir["#{CERTS_PATH}/*.crt"].each do |c|
+          begin
+            http.cert_store.add_cert OpenSSL::X509::Certificate.new(File.read(c))
+          rescue OpenSSL::X509::StoreError => error
+            nil
+          end
+        end
       end
     end
 
