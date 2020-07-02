@@ -5,7 +5,8 @@ module MoteSMS
   class ActionMailerSMSMailer < ::ActionMailer::Base
     def forward_sms(recipient, sms, options = {})
       subject = options[:subject].presence || "SMS to #{sms.to.map(&:to_s).join(', ')}"
-      mail options.merge(to: recipient, from: "#{sms.from} <#{recipient}>", subject: subject, body: sms.body)
+      from = options[:from].presence || "#{sms.from} <#{recipient}>"
+      mail options.merge(to: recipient, from: from, subject: subject, body: sms.body)
     end
   end
 
