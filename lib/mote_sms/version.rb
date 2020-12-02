@@ -1,3 +1,3 @@
 module MoteSMS
-  VERSION = '1.3.16'.freeze
+  VERSION = '1.4.1'.freeze
 end
