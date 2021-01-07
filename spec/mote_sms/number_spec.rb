@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'mote_sms/number'
 
@@ -40,13 +42,17 @@ describe MoteSMS::Number do
     it 'raises error when creating' do
       expect { described_class.new('what ever?') }.to raise_error(ArgumentError, /unable to parse/i)
       expect { described_class.new('0000') }.to raise_error(ArgumentError, /phony/i)
-      expect { described_class.new('123456789012345678901') }.to raise_error(ArgumentError, /wrong national destination/i)
+      expect do
+        described_class.new('123456789012345678901')
+      end.to raise_error(ArgumentError, /wrong national destination/i)
     end
   end
 
   context 'wrong cc/ndc' do
     it 'raises error when creating instance with wrong ndc' do
-      expect { described_class.new('+41 44 364 35 33', cc: '41', ndc: '43') }.to raise_error(ArgumentError, /national destination/i)
+      expect do
+        described_class.new('+41 44 364 35 33', cc: '41', ndc: '43')
+      end.to raise_error(ArgumentError, /national destination/i)
     end
   end
 

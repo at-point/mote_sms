@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'mote_sms'
 
@@ -5,7 +7,7 @@ describe MoteSMS do
   subject { described_class }
 
   it 'has a version' do
-    expect(subject::VERSION).to match /\d/
+    expect(subject::VERSION).to match(/\d/)
   end
 
   context 'transport' do

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'phony'
 require 'logger'
 require 'json'
@@ -20,7 +22,7 @@ module MoteSMS
     MAX_RECIPIENT = 1
 
     # Custom exception subclass.
-    ServiceError = Class.new(::Exception)
+    ServiceError = Class.new(RuntimeError)
 
     # Readable attributes
 
@@ -72,7 +74,10 @@ module MoteSMS
     #
     # Returns Array with sender ids.
     def deliver(message, _options = {})
-      raise ServiceError, "too many recipients, max. is #{MAX_RECIPIENT} (current: #{message.to.length})" if message.to.length > MAX_RECIPIENT
+      if message.to.length > MAX_RECIPIENT
+        raise ServiceError,
+              "too many recipients, max. is #{MAX_RECIPIENT} (current: #{message.to.length})"
+      end
 
       # Prepare request
       request = Net::HTTP::Post.new('/messaging/sms').tap do |request|
@@ -91,6 +96,7 @@ module MoteSMS
 
       # Handle errors
       raise ServiceError, "endpoint did respond with #{resp.code} and #{resp.body}" unless resp.code.to_i == 201
+
       self.class.logger.debug resp.body
 
       # Return numbers message send to

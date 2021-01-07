@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'mote_sms/message'
 require 'mote_sms/transports/action_mailer_transport'

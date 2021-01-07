@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'phony'
 
 module MoteSMS
@@ -6,10 +8,10 @@ module MoteSMS
   class Number
     # Support both Phony 1.7 and 2.x
     PhonyError = begin
-                   Phony::NormalizationError
-                 rescue
-                   Class.new(ArgumentError)
-                 end
+      Phony::NormalizationError
+    rescue StandardError
+      Class.new(ArgumentError)
+    end
 
     # Access the E164 normalized value of the number.
     attr_reader :number
@@ -46,11 +48,16 @@ module MoteSMS
         @number = @raw_number.gsub(/[^A-Z0-9]/i, '').upcase.strip
         raise ArgumentError, "Invalid vanity number #{@raw_number}" if @number.length.zero? || @number.length > 11
       else
-        raise ArgumentError, "Unable to parse #{@raw_number} as number" unless @raw_number.to_s =~ /\A[\d\.\/\-\s\(\)\+]+\z/
+        unless @raw_number.to_s =~ %r{\A[\d./\-\s()+]+\z}
+          raise ArgumentError,
+                "Unable to parse #{@raw_number} as number"
+        end
+
         cc = @options[:cc]
         normalized = Phony.normalize(@raw_number)
         normalized = "#{cc}#{normalized}" unless cc && normalized.start_with?(cc)
-        raise ArgumentError, "Wrong national destination code #{@raw_number}" unless Phony.plausible?(normalized, @options)
+        raise ArgumentError, "Wrong national destination code #{@raw_number}" unless Phony.plausible?(normalized,
+                                                                                                      @options)
 
         @number = Phony.normalize normalized
       end

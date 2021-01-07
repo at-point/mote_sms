@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'mote_sms/transports'
 
 module MoteSMS
@@ -9,8 +11,8 @@ module MoteSMS
   autoload :VERSION, 'mote_sms/version'
 
   # No default transport.
-  @@transport = nil
-  @@delayed_delivery_queue = :default
+  @transport = nil
+  @delayed_delivery_queue = :default
 
   # Public: Get globally defined queue name for ActiveJob, if any.
   # Defaults to `nil`.
@@ -26,7 +28,7 @@ module MoteSMS
   #
   # Returns nothing.
   def self.delayed_delivery_queue=(queue)
-    @@delayed_delivery_queue = queue
+    @delayed_delivery_queue = queue
   end
 
   # Public: Get globally defined transport method, if any.
@@ -43,7 +45,7 @@ module MoteSMS
   #
   # Returns nothing.
   def self.transport=(transport)
-    @@transport = transport
+    @transport = transport
   end
 
   # Public: Directly deliver a message using global transport.
@@ -59,6 +61,7 @@ module MoteSMS
   # Returns result of #deliver.
   def self.deliver(&block)
     raise ArgumentError, 'Block missing' unless block_given?
+
     Message.new(&block).deliver_now
   end
 end

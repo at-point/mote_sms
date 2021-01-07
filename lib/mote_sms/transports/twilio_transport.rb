@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'phony'
 require 'logger'
 require 'twilio-ruby'
@@ -21,7 +23,7 @@ module MoteSMS
     MAX_RECIPIENT = 1
 
     # Custom exception subclass.
-    ServiceError = Class.new(::Exception)
+    ServiceError = Class.new(RuntimeError)
 
     attr_reader :from_number, :account_sid, :auth_token
 

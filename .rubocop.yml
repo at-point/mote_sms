@@ -1,0 +1,7 @@
+AllCops:
+  Exclude:
+    - bin/*
+  NewCops: enable
+
+Style/Documentation:
+  Enabled: false

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'mote_sms/number'
 require 'mote_sms/number_list'
 
@@ -37,6 +39,7 @@ module MoteSMS
     #
     # Returns value of body.
     attr_writer :body
+
     def body(val = nil)
       @body = val if val
       @body
@@ -104,7 +107,9 @@ module MoteSMS
     end
 
     def deliver_now(options = {})
-      Kernel.warn 'options[:transport] in Message#deliver_now is deprecated and will be removed from MoteSMS' if options[:transport]
+      if options[:transport]
+        Kernel.warn 'options[:transport] in Message#deliver_now is deprecated and will be removed from MoteSMS'
+      end
       transport = options.delete(:transport) || self.transport || MoteSMS.transport
       transport.deliver(self, options)
     end

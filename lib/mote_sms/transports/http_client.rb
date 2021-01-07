@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'uri'
 require 'net/https'
 require 'digest/sha1'
@@ -18,11 +20,9 @@ module Transports
         http.cert_store = OpenSSL::X509::Store.new
         http.cert_store.set_default_paths
         Dir["#{CERTS_PATH}/*.crt"].each do |c|
-          begin
-            http.cert_store.add_cert OpenSSL::X509::Certificate.new(File.read(c))
-          rescue OpenSSL::X509::StoreError => error
-            nil
-          end
+          http.cert_store.add_cert OpenSSL::X509::Certificate.new(File.read(c))
+        rescue OpenSSL::X509::StoreError => e
+          nil
         end
       end
     end

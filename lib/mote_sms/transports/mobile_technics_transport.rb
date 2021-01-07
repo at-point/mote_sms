@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'uri'
 require 'net/http'
 require 'phony'
@@ -21,7 +23,7 @@ module MoteSMS
     MAX_RECIPIENT = 100
 
     # Custom exception subclass.
-    ServiceError = Class.new(::Exception)
+    ServiceError = Class.new(RuntimeError)
 
     # Readable attributes
     attr_reader :endpoint, :username, :password, :options, :http_client
@@ -89,7 +91,10 @@ module MoteSMS
     #
     # Returns Array with sender ids.
     def deliver(message, deliver_options = {})
-      raise ArgumentError, "too many recipients, max. is #{MAX_RECIPIENT} (current: #{message.to.length})" if message.to.length > MAX_RECIPIENT
+      if message.to.length > MAX_RECIPIENT
+        raise ArgumentError,
+              "too many recipients, max. is #{MAX_RECIPIENT} (current: #{message.to.length})"
+      end
 
       request = Net::HTTP::Post.new(endpoint.request_uri).tap do |req|
         req.body = URI.encode_www_form post_params(message, options.merge(deliver_options))
@@ -101,7 +106,13 @@ module MoteSMS
       resp = http_client.request(request)
 
       raise ServiceError, "endpoint did respond with #{resp.code}" unless resp.code.to_i == 200
-      raise ServiceError, "unable to deliver message to all recipients (CAUSE: #{resp.body.strip})" unless resp.body.split("\n").all? { |l| l =~ /Result_code: 00/ }
+
+      unless resp.body.split("\n").all? do |l|
+               l =~ /Result_code: 00/
+             end
+        raise ServiceError,
+              "unable to deliver message to all recipients (CAUSE: #{resp.body.strip})"
+      end
 
       resp['X-Nth-SmsId'].split(',')
 
@@ -118,12 +129,12 @@ module MoteSMS
     #
     # Returns Array with params.
     def post_params(message, options)
-      params = options.reject { |key, _v| [:proxy_address, :proxy_port, :ssl].include?(key) }
+      params = options.reject { |key, _v| %i[proxy_address proxy_port ssl].include?(key) }
       params.merge! username: username,
                     password: password,
                     origin: message.from ? message.from.to_number : params[:origin],
                     text: message.body,
-                    :'call-number' => prepare_numbers(message.to)
+                    'call-number': prepare_numbers(message.to)
 
       # Post process params (Procs & allow_adaption)
       params.map do |param, value|
@@ -141,7 +152,9 @@ module MoteSMS
     #
     # Returns String with numbers separated by ;.
     def prepare_numbers(number_list)
-      number_list.normalized_numbers.map { |n| Phony.formatted(n, format: :international_relative, spaces: '') }.join(';')
+      number_list.normalized_numbers.map do |n|
+        Phony.formatted(n, format: :international_relative, spaces: '')
+      end.join(';')
     end
   end
 end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'mote_sms/transports/test_transport'
 
@@ -12,6 +14,6 @@ describe MoteSMS::TestTransport do
   it 'appends deliveries' do
     subject.deliver 'firstMessage'
     subject.deliver 'secondMessage'
-    expect(MoteSMS.deliveries).to be == %w(firstMessage secondMessage)
+    expect(MoteSMS.deliveries).to be == %w[firstMessage secondMessage]
   end
 end

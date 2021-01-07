@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'mote_sms/number'
 
 module MoteSMS
@@ -23,7 +25,7 @@ module MoteSMS
 
     # Public: Create a new number list instance.
     def initialize
-      @numbers = ::Array.new
+      @numbers = []
     end
 
     # Public: Count of numbers in the list.

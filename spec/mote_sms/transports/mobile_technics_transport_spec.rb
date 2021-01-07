@@ -1,4 +1,5 @@
-# encoding: utf-8
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'cgi'
 require 'mote_sms/message'
@@ -33,8 +34,8 @@ describe MoteSMS::MobileTechnicsTransport do
     it 'sends POST to endpoint with URL encoded body' do
       stub_request(:post, endpoint).with do |req|
         params = CGI.parse(req.body)
-        expect(params['username']).to be == %w(example)
-        expect(params['password']).to be == %w(123456)
+        expect(params['username']).to be == %w[example]
+        expect(params['password']).to be == %w[123456]
         expect(params['text']).to be == ['Hello World, with äöü.']
         expect(params['call-number']).to be == ['0041791231212']
       end.to_return(success)
@@ -45,7 +46,8 @@ describe MoteSMS::MobileTechnicsTransport do
       message.to << '+41 79 333 44 55'
       message.to << '+41 78 111 22 33'
 
-      stub_request(:post, endpoint).with(body: hash_including('call-number' => '0041791231212;0041793334455;0041781112233')).to_return(success)
+      stub_request(:post,
+                   endpoint).with(body: hash_including('call-number' => '0041791231212;0041793334455;0041781112233')).to_return(success)
       subject.deliver message
     end
 

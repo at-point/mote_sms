@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 require 'mote_sms'
 require 'active_job'
@@ -10,25 +12,25 @@ describe MoteSMS::Message do
       body 'This is the SMS content'
     end
     expect(msg.from.number).to be == 'SENDER'
-    expect(msg.to.normalized_numbers).to be == %w(41791231212)
+    expect(msg.to.normalized_numbers).to be == %w[41791231212]
     expect(msg.body).to be == 'This is the SMS content'
   end
 
   context '#to' do
     it 'behaves as accessor' do
       subject.to = '41791231212'
-      expect(subject.to.normalized_numbers).to be == %w(41791231212)
+      expect(subject.to.normalized_numbers).to be == %w[41791231212]
     end
 
     it 'behaves as array' do
       subject.to << '41791231212'
       subject.to << '41797775544'
-      expect(subject.to.normalized_numbers).to be == %w(41791231212 41797775544)
+      expect(subject.to.normalized_numbers).to be == %w[41791231212 41797775544]
     end
 
     it 'normalizes numbers' do
       subject.to = '+41 79 123 12 12'
-      expect(subject.to.normalized_numbers).to be == %w(41791231212)
+      expect(subject.to.normalized_numbers).to be == %w[41791231212]
     end
   end
 

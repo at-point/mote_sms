@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module MoteSMS
   # All transports live within mote_sms/transports, though should be
   # available in ruby as `MoteSMS::<Some>Transport`.
