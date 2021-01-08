@@ -4,9 +4,21 @@ module MoteSMS
   # Internal: ActionMailer class to forward SMS to recipient.
   class ActionMailerSMSMailer < ::ActionMailer::Base
     def forward_sms(recipient, sms, options = {})
-      subject = options[:subject].presence || "SMS to #{sms.to.map(&:to_s).join(', ')}"
+      subject = if options[:allow_empty_subject].present?
+        options[:subject].presence
+      else
+        options[:subject].presence || "SMS to #{sms.to.map(&:to_s).join(', ')}"
+      end
       from = options[:from].presence || "#{sms.from} <#{recipient}>"
       mail options.merge(to: recipient, from: from, subject: subject, body: sms.body)
+    end
+
+    private
+
+    # override behaviour of actionmailer to get an empty subject
+    # https://api.rubyonrails.org/v6.0.3.4/classes/ActionMailer/Base.html#method-i-default_i18n_subject
+    def default_i18n_subject(interpolations = {})
+      ''
     end
   end
 
