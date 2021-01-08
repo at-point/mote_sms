@@ -15,6 +15,8 @@ module MoteSMS
 
     private
 
+    # override behaviour of actionmailer to get an empty subject
+    # https://api.rubyonrails.org/v6.0.3.4/classes/ActionMailer/Base.html#method-i-default_i18n_subject
     def default_i18n_subject(interpolations = {})
       ''
     end
