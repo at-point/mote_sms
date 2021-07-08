@@ -9,7 +9,7 @@ Gem::Specification.new do |gem|
   gem.name          = 'mote_sms'
   gem.version       = MoteSMS::VERSION
   gem.authors       = ['Lukas Westermann', 'Loris Gavillet']
-  gem.email         = ['lukas@at-point.ch', 'loris@at-point.ch']
+  gem.email         = ['info@at-point.ch']
   gem.summary       = 'Deliver SMS using Swisscom / MobileTechnics REST API.'
   gem.description   = 'Unofficial ruby adapter for Swisscom and MobileTechnics Bulk SMS APIs.
                          Tries to mimick mail API, so users can switch e.g. ActionMailer
