@@ -52,12 +52,8 @@ module MoteSMS
     #    sms.from # => '41791231234'
     #
     # Returns value of sender.
-    def from(val = nil, number: true)
-      if number && val
-        self.from = val
-      elsif val
-        @from = val
-      end
+    def from(val = nil)
+      self.from = val if val
       @from
     end
 
