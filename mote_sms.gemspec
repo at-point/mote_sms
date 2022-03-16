@@ -33,4 +33,5 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'actionmailer', '>= 5'
   gem.add_development_dependency 'activejob', '>= 5'
   gem.add_development_dependency 'twilio-ruby', '>= 4.11.0', '< 5'
+  gem.add_development_dependency 'obh-client', '~> 0.1'
 end

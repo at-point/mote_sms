@@ -7,4 +7,5 @@ module MoteSMS
   autoload :ActionMailerTransport, 'mote_sms/transports/action_mailer_transport'
   autoload :SwisscomTransport, 'mote_sms/transports/swisscom_transport'
   autoload :TwilioTransport, 'mote_sms/transports/twilio_transport'
+  autoload :OBHTransport, 'mote_sms/transports/OBH_transport'
 end

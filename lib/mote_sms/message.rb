@@ -37,6 +37,7 @@ module MoteSMS
     #
     # Returns value of body.
     attr_writer :body
+
     def body(val = nil)
       @body = val if val
       @body
@@ -51,12 +52,16 @@ module MoteSMS
     #    sms.from # => '41791231234'
     #
     # Returns value of sender.
-    def from(val = nil)
-      self.from = val if val
+    def from(val = nil, number: true)
+      if number && val
+        self.from = val
+      elsif val
+        @from = val
+      end
       @from
     end
 
-    # Public: Asign an instance of Number instead of the direct
+    # Public: Assign an instance of Number instead of the direct
     # string, so only vanity numbers are allowed.
     def from=(val)
       @from = val ? Number.new(val, vanity: true) : nil
