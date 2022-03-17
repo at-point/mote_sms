@@ -15,13 +15,6 @@ describe MoteSMS::TwilioTransport do
     end
   end
 
-  let(:message) do
-    MoteSMS::Message.new do
-      to '+41790001122'
-      body 'Hello World'
-    end
-  end
-
   context '#deliver' do
     before do
       allow_any_instance_of(Twilio::REST::Client).to receive_message_chain(:messages, :create) do |params|
