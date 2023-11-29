@@ -1,8 +1,0 @@
-source 'http://rubygems.org'
-
-gem 'actionmailer', '~> 6.1'
-gem 'activejob', '~> 6.1'
-
-gem 'phony', '~> 2'
-
-gemspec path: '../'
