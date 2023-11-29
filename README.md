@@ -2,7 +2,7 @@
 
 Unofficial ruby adapter for MobileTechnics HTTP Bulk SMS API. Tries to mimick
 mail API, so users can switch e.g. ActionMailer with this SMS provider. Requires
-Ruby 1.9.
+Ruby 3+.
 
 ## Installation
 

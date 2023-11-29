@@ -55,7 +55,7 @@ describe MoteSMS::Message do
     end
 
     it 'can pass additional attributes to transport' do
-      expect(transport).to receive(:deliver).with(subject, serviceid: 'myapplication')
+      expect(transport).to receive(:deliver).with(subject, { serviceid: 'myapplication' })
       subject.deliver_now serviceid: 'myapplication'
     end
 
