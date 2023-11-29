@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module MoteSMS
   # Public: Provide access to global array of delivered
   # messages, this can be used in testing to assert sent

@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 require 'spec_helper'
 require 'twilio-ruby'
 require 'mote_sms/transports/twilio_transport'

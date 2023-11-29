@@ -1,0 +1,12 @@
+source 'http://rubygems.org'
+
+gem 'actionmailer', '~> 7.1'
+gem 'activejob', '~> 7.1'
+
+gem 'phony', '~> 2'
+
+gemspec path: '../'
+
+source 'https://gem.fury.io/atpoint/' do
+  gem 'obh-client'
+end

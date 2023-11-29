@@ -1,0 +1,37 @@
+name: Release
+on:
+  push:
+    branches:
+      - main
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: GoogleCloudPlatform/release-please-action@v2
+        id: release
+        with:
+          release-type: ruby
+          package-name: release-please-demo
+          bump-minor-pre-major: true
+          version-file: "lib/mote_sms/version.rb"
+      # Checkout code if release was created
+      - uses: actions/checkout@v2
+        if: ${{ steps.release.outputs.release_created }}
+      # Setup ruby if a release was created
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 3.1
+        if: ${{ steps.release.outputs.release_created }}
+      # Bundle install
+      - run: bundle install
+        env:
+          BUNDLE_GEM__FURY__IO: ${{ secrets.GEMFURY_DEPLOY_TOKEN }}
+        if: ${{ steps.release.outputs.release_created }}
+      # Publish
+      - name: publish gem
+        env:
+          GEMFURY_PUSH_TOKEN: ${{ secrets.GEMFURY_PUSH_TOKEN }}
+        run: |
+          gem build *.gemspec
+          curl -F package=@mote_sms-${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}.gem  https://${GEMFURY_PUSH_TOKEN}@push.fury.io/atpoint/"
+        if: ${{ steps.release.outputs.release_created }}

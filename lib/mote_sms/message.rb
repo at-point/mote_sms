@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'mote_sms/number'
 require 'mote_sms/number_list'
 
