@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'phony'
 require 'logger'
 require 'json'

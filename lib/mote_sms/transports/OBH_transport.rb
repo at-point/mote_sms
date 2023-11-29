@@ -1,5 +1,7 @@
 require 'phony'
 require 'logger'
+# frozen_string_literal: true
+
 require 'OBH/client'
 
 module MoteSMS
