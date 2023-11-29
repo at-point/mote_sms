@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.0.1](https://www.github.com/at-point/mote_sms/compare/v2.0.0...v2.0.1) (2023-11-29)
+
+
+### Bug Fixes
+
+* broken release workflow ([c8c7a63](https://www.github.com/at-point/mote_sms/commit/c8c7a637326d1008e73e53670919d7c74e93bbaa))
+
 ## [2.0.0](https://www.github.com/at-point/mote_sms/compare/v1.5.0...v2.0.0) (2023-11-29)
 
 
