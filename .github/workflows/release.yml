@@ -30,8 +30,12 @@ jobs:
       # Publish
       - name: publish gem
         env:
-          GEMFURY_PUSH_TOKEN: ${{ secrets.GEMFURY_PUSH_TOKEN }}
+          RUBYGEMS_API_KEY: ${{ secrets.RUBYGEMS_API_KEY }}
         run: |
+          mkdir -p $HOME/.gem
+          touch $HOME/.gem/credentials
+          chmod 0600 $HOME/.gem/credentials
+          printf -- "---\n:rubygems_api_key: ${RUBYGEMS_API_KEY}\n" > $HOME/.gem/credentials
           gem build *.gemspec
-          curl -F package=@mote_sms-${{ steps.release.outputs.major }}.${{ steps.release.outputs.minor }}.${{ steps.release.outputs.patch }}.gem  https://${GEMFURY_PUSH_TOKEN}@push.fury.io/atpoint/"
+          gem push *.gem
         if: ${{ steps.release.outputs.release_created }}
