@@ -48,6 +48,7 @@ module MoteSMS
         conf.proxy_port = options[:proxy_port]
         conf.locale = options[:locale]
         conf.logger = options[:logger]
+        conf.ca_file = options[:ca_file]
       end
       @message_from = options[:message_from] || false
     end
@@ -81,6 +82,5 @@ module MoteSMS
     def prepare_numbers(number_list)
       number_list.normalized_numbers.map { |n| Phony.formatted(n, format: :international_absolute, spaces: '') }.first
     end
-
   end
 end
