@@ -14,18 +14,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Generate token from Release Please GitHub App
-        id: generate-token
-        uses: actions/create-github-app-token@v2
-        with:
-          app-id: ${{ vars.APP_RELEASE_PLEASE_ID }}
-          private-key: ${{ secrets.APP_RELEASE_PLEASE_PRIVATE_KEY }}
-
       - name: Setup Release Please
         uses: googleapis/release-please-action@v4
         id: release
         with:
-          token: ${{ steps.generate-token.outputs.token }}
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       # Setup ruby if a release was created
       - uses: ruby/setup-ruby@v1
