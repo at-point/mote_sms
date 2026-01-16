@@ -20,7 +20,7 @@ describe MoteSMS::TwilioTransport do
   context '#deliver' do
     before do
       allow_any_instance_of(Twilio::REST::Client).to receive_message_chain(:messages, :create) do |params|
-        OpenStruct.new(to: params[:to])
+        Struct.new(:to).new(params[:to])
       end
     end
 
