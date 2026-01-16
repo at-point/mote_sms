@@ -7,13 +7,13 @@ jobs:
       matrix:
         gemfile:
           - Gemfile
-          - gemfiles/rails7.1.gemfile
+          - gemfiles/rails8.1.gemfile
         ruby:
+          - '3.4'
           - '3.2'
-          - '3.1'
         exclude:
           - gemfile: Gemfile
-            ruby: '3.2'
+            ruby: '3.4'
     runs-on: ubuntu-latest
     env: # $BUNDLE_GEMFILE must be set at the job level, so it is set for all steps
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
@@ -24,5 +24,5 @@ jobs:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true # runs bundle install and caches installed gems automatically
         env:
-          BUNDLE_GEM__FURY__IO: ${{ secrets.GEMFURY_DEPLOY_TOKEN }}
+          BUNDLE_RUBYGEMS__PKG__GITHUB__COM: ${{ secrets.GITHUB_TOKEN }}
       - run: bundle exec rake

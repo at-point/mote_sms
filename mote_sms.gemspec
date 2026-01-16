@@ -22,16 +22,16 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep(%r{^(test|spec|features)/})
   gem.require_paths = ['lib']
 
-  gem.required_ruby_version = '>= 3.1'
+  gem.required_ruby_version = '>= 3.2'
 
   gem.add_dependency 'phony', '>= 2'
-  gem.add_dependency 'activesupport', '>= 5'
+  gem.add_dependency 'activesupport', '>= 7.1'
 
   gem.add_development_dependency 'rake'
   gem.add_development_dependency 'rspec', '~> 3.6'
   gem.add_development_dependency 'webmock', '~> 3.14'
-  gem.add_development_dependency 'actionmailer', '>= 6.1'
-  gem.add_development_dependency 'activejob', '>= 6.1'
-  gem.add_development_dependency 'twilio-ruby', '~> 6'
+  gem.add_development_dependency 'actionmailer', '>= 7.1'
+  gem.add_development_dependency 'activejob', '>= 7.1'
+  gem.add_development_dependency 'twilio-ruby', '~> 7'
   gem.add_development_dependency 'obh-client', '~> 0.3'
 end
